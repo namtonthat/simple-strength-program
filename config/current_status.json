@@ -1,0 +1,30 @@
+{
+    "squats": {
+        "weight": 80,
+        "reps": 6
+    },
+    "bench":{
+        "weight": 80,
+        "reps": 3
+    },
+    "deadlifts":{
+        "weight": 120,
+        "reps": 5
+    },
+    "program_goal": "strength",
+    "exercise_preference":
+    {
+        "volume": {
+            "max_sets": 3,
+            "max_reps": 8
+        },
+        "strength": {
+            "top_sets": 1,
+            "top_reps": 2,
+            "max_sets": 4,
+            "max_reps": 6
+        }
+    },
+    "gender": "male",
+    "microplates": true
+}
