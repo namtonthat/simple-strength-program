@@ -1,8 +1,7 @@
 import numpy as np
 import yaml
-from datetime import datetime
-from ics import Calendar, Event
 import pandas as pd
+# from ics import Calendar, Event
 
 def calculate_1rm(reps, weight):
     """
