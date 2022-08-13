@@ -1,30 +1,81 @@
 {
     "squats": {
         "weight": 80,
-        "reps": 6
+        "reps": 6,
+        "rpe": 9.5
     },
     "bench":{
-        "weight": 80,
-        "reps": 3
+        "weight": 82.5,
+        "reps": 2,
+        "rpe": 9.5
     },
     "deadlifts":{
         "weight": 120,
-        "reps": 5
+        "reps": 5,
+        "rpe": 9.0
     },
-    "program_goal": "strength",
+    "gender": "male",
+    "microplates": true,
+    "program_goal": "strength_3",
     "exercise_preference":
     {
-        "volume": {
+        "strength_1": {
+            "top_sets": 1,
+            "top_reps": 1,
+            "backoff_sets": 3,
+            "backoff_reps": 3
+        },
+        "strength_2": {
+            "top_sets": 2,
+            "top_reps": 2,
+            "backoff_sets": 3,
+            "backoff_reps": 4
+        },
+        "strength_3": {
+            "top_sets": 1,
+            "top_reps": 3,
+            "backoff_sets": 3,
+            "backoff_reps": 5
+        },
+        "strength_4": {
+            "top_sets": 1,
+            "top_reps": 3,
+            "backoff_sets": 3,
+            "backoff_reps": 6
+        },
+        "strength_5": {
+            "top_sets": 1,
+            "top_reps": 4,
+            "backoff_sets": 3,
+            "backoff_reps": 6
+        },
+        "strength_6": {
+            "top_sets": 1,
+            "top_reps": 5,
+            "backoff_sets": 3,
+            "backoff_reps": 6
+        },
+        "strength_basic": {
+            "top_sets": 0,
+            "top_reps": 0,
+            "backoff_sets": 5,
+            "backoff_reps": 5
+        },
+        "volume_basic": {
+            "max_sets": 3,
+            "max_reps": 6
+        },
+        "volume_1": {
             "max_sets": 3,
             "max_reps": 8
         },
-        "strength": {
-            "top_sets": 1,
-            "top_reps": 2,
+        "volume_2": {
             "max_sets": 4,
-            "max_reps": 6
+            "max_reps": 8
+        },
+        "volume_3": {
+            "max_sets": 4,
+            "max_reps": 8
         }
-    },
-    "gender": "male",
-    "microplates": true
+    }
 }
