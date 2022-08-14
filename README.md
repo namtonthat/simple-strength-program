@@ -1,14 +1,14 @@
 A simple Python script to automate the creation of a powerlifting strength program.
 
 ## How to use
-1. Clone repo into local directory.
-2. Navigate to repo.
-3. Install packages by using `pip` to install `requirements.txt`.
-5. Update `user.json` to reflect your current status.
+1. Clone repo into local directory and navigate to repo.
+2. Install packages required by `requirements.txt`.
+3. Update `user.json` to reflect your current status.
+
 **NOTE**:
 - Refer to `exercise_pref` to select a goal i.e. the lower the `x` number is in `(strength|volume)-x`; the higher the amount of volume but also working less at the higher weight values.
 - You can set different goals for each lift - if in doubt, there are also `basic` programs to help you get started with strength / volume building
-6. Run `python3 ssp.py` to output your next 5 weeks of training.
+4. Run `python3 ssp.py` to output your next 5 weeks of training.
 
 
 ### Volume
