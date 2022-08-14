@@ -1,23 +1,22 @@
 {
     "squats": {
-        "weight": 100,
-        "reps": 6,
-        "rpe": 8,
-        "program_goal": "strength-3"
+        "weight": 87.5,
+        "reps": 4,
+        "rpe": 9,
+        "program_goal": "strength-5"
     },
     "bench":{
-        "weight": 107.5,
-        "reps": 2,
+        "weight": 54,
+        "reps": 1,
         "rpe": 9.5,
-        "program_goal": "strength-2"
+        "program_goal": "strength-5"
     },
     "deadlifts":{
-        "weight": 140,
-        "reps": 5,
-        "rpe": 6,
-        "program_goal": "volume-2"
+        "weight": 132.5,
+        "reps": 1,
+        "rpe": 9.5,
+        "program_goal": "strength-5"
     },
-    "gender": "male",
     "microplates": false,
     "exercise_pref":
     {
@@ -48,7 +47,7 @@
         "strength-5": {
             "top_sets": 1,
             "top_reps": 4,
-            "backoff_sets": 3,
+            "backoff_sets": 2,
             "backoff_reps": 6
         },
         "strength-6": {
