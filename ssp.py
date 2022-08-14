@@ -23,81 +23,100 @@ def round_weights(weight, microplates = False):
 
     return pl_weight
 
-def calculate_training_range(one_rm, reps, microplates):
+def calculate_training_range(one_rm, reps, rpe_schema):
     """
     Calculate the training day progression for a given 1RM
     """
     df_ref = df_rpe[f'{reps}'].to_dict()
-    w1 = df_ref.get(6) * one_rm
-    w2 = df_ref.get(7.5) * one_rm
-    w3 = df_ref.get(8) * one_rm
-    w4 = df_ref.get(8.5) * one_rm
-    w5 = df_ref.get(9.5) * one_rm
+    microplates = config["microplates"]
 
-    training_weight = [w1, w2, w3, w4, w5]
-    training_range = [round_weights(i, microplates) for i in training_weight]
+    training_weight = []
+    for rpe in rpe_schema:
+
+        week_weight = df_ref.get(rpe) * one_rm
+        training_weight.append(week_weight)
+
+    training_range  = [round_weights(i, microplates) for i in training_weight]
 
     return training_range
 
 
-
-def calculate_scheme(one_rm, reps, backoff = False):
+def get_sets_reps(program_goal):
     """
-    Calculate the number of reps and weight given a one_rm and exercise type
-    :param one_rm: one rep max for that given training session
-    :param reps: number of reps for that given training session
-    :param backoff: if true, calculate the backoff scheme for that given training session
+    Get the number of sets and reps for a given program goal
+    Strength goals are top sets and followed by backoffs
+    whereas volume sets do not contain top sets
     """
-    # wenders_one_rm =
+    program_schema = config["exercise_pref"][program_goal]
+    program_type = program_goal.split('-')[0]
 
-    if backoff:
-        sets = 3
+    if program_type == "strength":
+        top_sets = program_schema["top_sets"]
+        top_reps = program_schema["top_reps"]
+        backoff_sets = program_schema["backoff_sets"]
+        backoff_reps = program_schema["backoff_reps"]
+
+        rpe_top = config["rpe_pref"][program_type]["top_sets"]
+        rpe_backoff = config["rpe_pref"][program_type]["backoff_sets"]
+
+
+        return top_sets, top_reps,rpe_top, backoff_sets, backoff_reps, rpe_backoff
     else:
-        sets = 1
+        max_sets = program_schema["max_sets"]
+        max_reps = program_schema["max_reps"]
+        rpe_max = config["rpe_pref"][program_type]["max_sets"]
+        return max_sets, max_reps, rpe_max
 
-    scheme = { "weight": one_rm, "reps": reps, "sets": sets }
-    return
+def get_user_config(lift):
+    """
+    Return variables assigned from dictionary
+    """
+    program_goal = config[lift]["program_goal"]
+    program_type = program_goal.split('-')[0]
+    reps = config[lift]["reps"]
+    weight = config[lift]["weight"]
+    rpe = config[lift]["rpe"]
+    rpe_pref = config["rpe_pref"][program_type]
+
+    return program_goal, program_type, reps, weight, rpe, rpe_pref
+
+def output_training_range(training_range, backoff_training_range=None):
+    """
+    Output the training range to the console
+    """
+    if backoff_training_range is not None:
+        for week, (top_weight, backoff_weight) in enumerate(zip(training_range, backoff_training_range), 1):
+            print(f'Week {week} \n'
+                f'{top_sets} x {top_reps}: {top_weight}\n'
+                f'{backoff_sets} x {backoff_reps}: {backoff_weight}')
+    else:
+        for week, weight in enumerate(training_range, 1):
+            print(f'Week {week} \n'
+                f'{max_sets} x {max_reps}: {weight}')
 
 
 if __name__ == '__main__':
     df_rpe = pd.read_csv('source/rpe-calculator.csv').set_index('RPE')
-
-
     config = yaml.load(open('config/current_status.json', "r"), Loader = yaml.FullLoader)
-
-    microplates = config["microplates"]
-    program_goal = config["program_goal"]
-    exercise_pref = config["exercise_preference"].get(program_goal)
 
     for lift in config.keys():
         if lift in ("squats", "bench", "deadlifts"):
-            reps = config[lift]["reps"]
-            weight = config[lift]["weight"]
-            rpe = config[lift]["rpe"]
+            program_goal, program_type, reps, weight, rpe, rpe_pref  = get_user_config(lift)
+
             one_rm = calculate_1rm(reps, weight, rpe)
             print(f"\n{str.capitalize(lift)} (1RM): {one_rm} kg")
 
             if 'strength' in program_goal:
-                top_sets = exercise_pref.get('top_sets')
-                top_reps = exercise_pref.get('top_reps')
-                backoff_sets =  exercise_pref.get('backoff_sets')
-                backoff_reps =  exercise_pref.get('backoff_reps')
-
+                top_sets, top_reps, rpe_top, backoff_sets, backoff_reps, rpe_backoff = get_sets_reps(program_goal)
                 # strength section
-                print(f'Top set: {top_sets} sets of {top_reps} reps')
-                training_range = calculate_training_range(one_rm, top_reps, microplates)
-                print(f"{training_range}")
-
-
+                top_training_range = calculate_training_range(one_rm, top_reps, rpe_top)
                 # backoff section
-                print(f'Backoffs: {backoff_sets} sets of {backoff_reps} reps')
-                training_range = calculate_training_range(one_rm, backoff_reps, microplates)
-                print(f"{training_range}")
+                backoff_training_range = calculate_training_range(one_rm, backoff_reps, rpe_backoff)
 
+                output_training_range(top_training_range, backoff_training_range)
             else:
             # strength section
-                max_sets = exercise_pref.get('max_sets')
-                max_reps = exercise_pref.get('max_reps')
+                max_sets, max_reps, rpe_max = get_sets_reps(program_goal)
                 print(f'{max_sets} sets of {max_reps} reps')
-                training_range = calculate_training_range(one_rm, max_reps, microplates)
-                print(f"{training_range}")
+                training_range = calculate_training_range(one_rm, max_reps, rpe_max)
+                output_training_range(training_range)

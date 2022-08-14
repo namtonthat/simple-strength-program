@@ -2,80 +2,92 @@
     "squats": {
         "weight": 80,
         "reps": 6,
-        "rpe": 9.5
+        "rpe": 9.5,
+        "program_goal": "strength-3"
     },
     "bench":{
         "weight": 82.5,
         "reps": 2,
-        "rpe": 9.5
+        "rpe": 9.5,
+        "program_goal": "strength-2"
     },
     "deadlifts":{
         "weight": 120,
         "reps": 5,
-        "rpe": 9.0
+        "rpe": 9.0,
+        "program_goal": "volume-2"
     },
     "gender": "male",
     "microplates": true,
-    "program_goal": "strength_3",
-    "exercise_preference":
+    "exercise_pref":
     {
-        "strength_1": {
+        "strength-1": {
             "top_sets": 1,
             "top_reps": 1,
             "backoff_sets": 3,
             "backoff_reps": 3
         },
-        "strength_2": {
-            "top_sets": 2,
+        "strength-2": {
+            "top_sets": 1,
             "top_reps": 2,
             "backoff_sets": 3,
             "backoff_reps": 4
         },
-        "strength_3": {
+        "strength-3": {
             "top_sets": 1,
             "top_reps": 3,
             "backoff_sets": 3,
             "backoff_reps": 5
         },
-        "strength_4": {
+        "strength-4": {
             "top_sets": 1,
             "top_reps": 3,
             "backoff_sets": 3,
             "backoff_reps": 6
         },
-        "strength_5": {
+        "strength-5": {
             "top_sets": 1,
             "top_reps": 4,
             "backoff_sets": 3,
             "backoff_reps": 6
         },
-        "strength_6": {
+        "strength-6": {
             "top_sets": 1,
             "top_reps": 5,
             "backoff_sets": 3,
             "backoff_reps": 6
         },
-        "strength_basic": {
+        "strength-basic": {
             "top_sets": 0,
             "top_reps": 0,
             "backoff_sets": 5,
             "backoff_reps": 5
         },
-        "volume_basic": {
+        "volume-basic": {
             "max_sets": 3,
             "max_reps": 6
         },
-        "volume_1": {
+        "volume-1": {
             "max_sets": 3,
             "max_reps": 8
         },
-        "volume_2": {
+        "volume-2": {
             "max_sets": 4,
             "max_reps": 8
         },
-        "volume_3": {
+        "volume-3": {
             "max_sets": 4,
             "max_reps": 8
+        }
+    },
+    "rpe_pref":
+    {
+        "strength": {
+            "top_sets": [6.5, 7.5, 8, 8.5, 9.5],
+            "backoff_sets": [5, 6, 7, 7.5, 8]
+        },
+        "volume": {
+            "max_sets": [6, 7.5, 8, 8.5, 9.0]
         }
     }
 }
