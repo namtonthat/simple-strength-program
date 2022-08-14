@@ -1,24 +1,24 @@
 {
     "squats": {
-        "weight": 80,
+        "weight": 100,
         "reps": 6,
-        "rpe": 9.5,
+        "rpe": 8,
         "program_goal": "strength-3"
     },
     "bench":{
-        "weight": 82.5,
+        "weight": 107.5,
         "reps": 2,
         "rpe": 9.5,
         "program_goal": "strength-2"
     },
     "deadlifts":{
-        "weight": 120,
+        "weight": 140,
         "reps": 5,
-        "rpe": 9.0,
+        "rpe": 6,
         "program_goal": "volume-2"
     },
     "gender": "male",
-    "microplates": true,
+    "microplates": false,
     "exercise_pref":
     {
         "strength-1": {

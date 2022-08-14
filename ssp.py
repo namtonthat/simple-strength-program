@@ -32,14 +32,28 @@ def calculate_training_range(one_rm, reps, rpe_schema):
 
     training_weight = []
     for rpe in rpe_schema:
-
         week_weight = df_ref.get(rpe) * one_rm
         training_weight.append(week_weight)
 
     training_range  = [round_weights(i, microplates) for i in training_weight]
 
+    # iterate through training range to make sure there is enough spacing between the numbers
+    if len(set(training_range)) < len(training_range):
+        training_range = seperate_training_range(training_range)
+
     return training_range
 
+def seperate_training_range(training_range):
+    """
+    Ensures there's enough gap between the weekly values to gain strength
+    by setting the highest value the maximum limit and then calculating
+    even spacing between the values
+    """
+    max = training_range[-1]
+    min = 0.875 * max
+    new_training_range = np.linspace(min, max, len(training_range))
+    new_training_range = [round_weights(i) for i in new_training_range]
+    return new_training_range
 
 def get_sets_reps(program_goal):
     """
@@ -93,6 +107,8 @@ def output_training_range(training_range, backoff_training_range=None):
         for week, weight in enumerate(training_range, 1):
             print(f'Week {week} \n'
                 f'{max_sets} x {max_reps}: {weight}')
+
+
 
 
 if __name__ == '__main__':
