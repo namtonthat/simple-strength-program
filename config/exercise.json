@@ -1,0 +1,100 @@
+{
+    "powerlifting_accessories": {
+        "bench": [
+            "Paused Bench",
+            "3 Count Paused Bench",
+            "Overhead Press"
+        ],
+        "squat": [
+            "Romainan Deadlifts",
+            "Safety Squat Bar",
+        ],
+        "deadlift": [
+            "Conventional Deadlifts"
+        ]
+    },
+    "accessories": {
+        "bench": [
+            "Tricep Extensions",
+        ],
+        "squat": [
+            "Paused Squat",
+            "3 Count Paused squat",
+        ],
+        "deadlift": [
+            "Paused Deadlift",
+            "Meadow Rows"
+        ]
+    },
+    "exercise_pref":
+    {
+    "strength-1": {
+        "top_sets": 1,
+        "top_reps": 1,
+        "backoff_sets": 3,
+        "backoff_reps": 3
+    },
+    "strength-2": {
+        "top_sets": 1,
+        "top_reps": 2,
+        "backoff_sets": 3,
+        "backoff_reps": 4
+    },
+    "strength-3": {
+        "top_sets": 1,
+        "top_reps": 3,
+        "backoff_sets": 3,
+        "backoff_reps": 5
+    },
+    "strength-4": {
+        "top_sets": 1,
+        "top_reps": 3,
+        "backoff_sets": 3,
+        "backoff_reps": 6
+    },
+    "strength-5": {
+        "top_sets": 1,
+        "top_reps": 4,
+        "backoff_sets": 2,
+        "backoff_reps": 6
+    },
+    "strength-6": {
+        "top_sets": 1,
+        "top_reps": 5,
+        "backoff_sets": 3,
+        "backoff_reps": 6
+    },
+    "strength-basic": {
+        "top_sets": 0,
+        "top_reps": 0,
+        "backoff_sets": 5,
+        "backoff_reps": 5
+    },
+    "volume-basic": {
+        "max_sets": 3,
+        "max_reps": 6
+    },
+    "volume-1": {
+        "max_sets": 3,
+        "max_reps": 8
+    },
+    "volume-2": {
+        "max_sets": 4,
+        "max_reps": 8
+    },
+    "volume-3": {
+        "max_sets": 4,
+        "max_reps": 8
+    }
+    },
+    "rpe_pref":
+    {
+        "strength": {
+            "top_sets": [6.5, 7.5, 8, 8.5, 9.5],
+            "backoff_sets": [5, 6, 7, 7.5, 8]
+        },
+        "volume": {
+            "max_sets": [6, 7.5, 8, 8.5, 9.0]
+        }
+    }
+}

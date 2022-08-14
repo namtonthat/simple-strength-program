@@ -1,0 +1,21 @@
+{
+    "squats": {
+        "weight": 87.5,
+        "reps": 4,
+        "rpe": 9,
+        "program_goal": "strength-5"
+    },
+    "bench":{
+        "weight": 54,
+        "reps": 1,
+        "rpe": 9.5,
+        "program_goal": "strength-5"
+    },
+    "deadlifts":{
+        "weight": 122.5,
+        "reps": 2,
+        "rpe": 9,
+        "program_goal": "strength-5"
+    },
+    "microplates": false
+}

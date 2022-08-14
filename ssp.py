@@ -113,7 +113,10 @@ def output_training_range(training_range, backoff_training_range=None):
 
 if __name__ == '__main__':
     df_rpe = pd.read_csv('source/rpe-calculator.csv').set_index('RPE')
-    config = yaml.load(open('config/current_status.json', "r"), Loader = yaml.FullLoader)
+    user_config = yaml.load(open('config/user.json', "r"), Loader = yaml.FullLoader)
+    exercise_config = yaml.load(open('config/exercise.json', "r"), Loader = yaml.FullLoader)
+
+    config = {**user_config, **exercise_config}
 
     for lift in config.keys():
         if lift in ("squats", "bench", "deadlifts"):
