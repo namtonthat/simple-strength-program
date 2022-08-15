@@ -1,25 +1,26 @@
 {
-    "powerlifting_accessories": {
-        "bench": [
-            "Paused Bench",
-            "3 Count Paused Bench",
-            "Overhead Press"
-        ],
-        "squat": [
-            "Romainan Deadlifts",
-            "Safety Squat Bar",
-        ],
-        "deadlift": [
-            "Conventional Deadlifts"
-        ]
+    "accessory_lifts": {
+        "bench": {
+            "Paused Bench": [0.45, 0.7],
+            "3 Count Paused Bench": [0.4, 0.6],
+            "Incline Bench Press": [0.3, 0.5]
+        },
+        "squat": {
+            "Romainan Deadlifts": [0.4, 0.7],
+            "Safety Squat Bar": [0.4, 0.7]
+        },
+        "deadlift": {
+            "Conventional Deadlifts": [0.65, 0.85]
+        }
     },
     "accessories": {
         "bench": [
             "Tricep Extensions",
+            "Overhead Press"
         ],
         "squat": [
             "Paused Squat",
-            "3 Count Paused squat",
+            "3 Count Paused squat"
         ],
         "deadlift": [
             "Paused Deadlift",
@@ -71,20 +72,20 @@
         "backoff_reps": 5
     },
     "volume-basic": {
-        "max_sets": 3,
-        "max_reps": 6
+        "backoff_sets": 3,
+        "backoff_reps": 6
     },
     "volume-1": {
-        "max_sets": 3,
-        "max_reps": 8
+        "backoff_sets": 3,
+        "backoff_reps": 8
     },
     "volume-2": {
-        "max_sets": 4,
-        "max_reps": 8
+        "backoff_sets": 4,
+        "backoff_reps": 8
     },
     "volume-3": {
-        "max_sets": 4,
-        "max_reps": 8
+        "backoff_sets": 4,
+        "backoff_reps": 8
     }
     },
     "rpe_pref":
@@ -94,7 +95,7 @@
             "backoff_sets": [5, 6, 7, 7.5, 8]
         },
         "volume": {
-            "max_sets": [6, 7.5, 8, 8.5, 9.0]
+            "backoff_sets": [6, 7.5, 8, 8.5, 9.0]
         }
     }
 }

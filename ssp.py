@@ -55,7 +55,7 @@ def seperate_training_range(training_range):
     new_training_range = [round_weights(i) for i in new_training_range]
     return new_training_range
 
-def get_sets_reps(program_goal):
+def get_sets_reps(config, program_goal):
     """
     Get the number of sets and reps for a given program goal
     Strength goals are top sets and followed by backoffs
@@ -63,23 +63,20 @@ def get_sets_reps(program_goal):
     """
     program_schema = config["exercise_pref"][program_goal]
     program_type = program_goal.split('-')[0]
+    strength_list = []
 
     if program_type == "strength":
         top_sets = program_schema["top_sets"]
         top_reps = program_schema["top_reps"]
-        backoff_sets = program_schema["backoff_sets"]
-        backoff_reps = program_schema["backoff_reps"]
-
         rpe_top = config["rpe_pref"][program_type]["top_sets"]
-        rpe_backoff = config["rpe_pref"][program_type]["backoff_sets"]
+        strength_list = [top_sets, top_reps, rpe_top]
 
+    backoff_sets = program_schema["backoff_sets"]
+    backoff_reps = program_schema["backoff_reps"]
+    rpe_backoff  = config["rpe_pref"][program_type]["backoff_sets"]
 
-        return top_sets, top_reps,rpe_top, backoff_sets, backoff_reps, rpe_backoff
-    else:
-        max_sets = program_schema["max_sets"]
-        max_reps = program_schema["max_reps"]
-        rpe_max = config["rpe_pref"][program_type]["max_sets"]
-        return max_sets, max_reps, rpe_max
+    strength_list.extend([backoff_sets, backoff_reps, rpe_backoff])
+    return strength_list
 
 def get_user_config(lift):
     """
@@ -106,10 +103,23 @@ def output_training_range(training_range, backoff_training_range=None):
     else:
         for week, weight in enumerate(training_range, 1):
             print(f'Week {week} \n'
-                f'{max_sets} x {max_reps}: {weight}')
+                f'{max_sets} x {max_reps}: {weight}'
+            )
 
-
-
+def get_accessory_lifts(one_rm, lift, backoff_reps, config):
+    """
+    Get the accessory lifts for the user
+    """
+    accessory_lifts = config["accessory_lifts"][lift]
+    accessory_reps = 8
+    for accessory_lift in accessory_lifts.keys():
+        # convert min and max percentages into RPE values as a percentage of 1RM
+        [min_rpe, max_rpe] = accessory_lifts[accessory_lift]
+        accessory_rpe = np.linspace(min_rpe, max_rpe, 5).tolist()
+        accessory_rpe = [round(i * 20) /2 for i in accessory_rpe]
+        print(accessory_reps)
+        accessory_weight = calculate_training_range(one_rm, accessory_reps, accessory_rpe)
+        print(f"{accessory_lift}: {accessory_weight}")
 
 if __name__ == '__main__':
     df_rpe = pd.read_csv('source/rpe-calculator.csv').set_index('RPE')
@@ -119,23 +129,24 @@ if __name__ == '__main__':
     config = {**user_config, **exercise_config}
 
     for lift in config.keys():
-        if lift in ("squats", "bench", "deadlifts"):
+        if lift in ("squat", "bench", "deadlift"):
             program_goal, program_type, reps, weight, rpe, rpe_pref  = get_user_config(lift)
 
             one_rm = calculate_1rm(reps, weight, rpe)
             print(f"\n{str.capitalize(lift)} (1RM): {one_rm} kg")
 
             if 'strength' in program_goal:
-                top_sets, top_reps, rpe_top, backoff_sets, backoff_reps, rpe_backoff = get_sets_reps(program_goal)
+                top_sets, top_reps, rpe_top, backoff_sets, backoff_reps, rpe_backoff = get_sets_reps(config, program_goal)
                 # strength section
                 top_training_range = calculate_training_range(one_rm, top_reps, rpe_top)
                 # backoff section
                 backoff_training_range = calculate_training_range(one_rm, backoff_reps, rpe_backoff)
 
+                get_accessory_lifts(one_rm, lift, backoff_reps, config)
                 output_training_range(top_training_range, backoff_training_range)
             else:
             # strength section
-                max_sets, max_reps, rpe_max = get_sets_reps(program_goal)
+                max_sets, max_reps, rpe_max = get_sets_reps(config, program_goal)
                 print(f'{max_sets} sets of {max_reps} reps')
                 training_range = calculate_training_range(one_rm, max_reps, rpe_max)
                 output_training_range(training_range)
