@@ -15,4 +15,4 @@ A simple Python script to automate the creation of a powerlifting strength progr
 - Refers to only doing straight sets with reps within the 6 + rep range.
 
 ### Strength
-- Refers to doing top sets and then followed by back off sets, typically 90% of your top set but it is configured off the RPE scheme defined.
+- Refers to doing top sets and then followed by back off sets, typically 90% of your top set but the RPE scheme defined takes precedence.
