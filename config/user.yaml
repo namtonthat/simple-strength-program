@@ -1,0 +1,16 @@
+squat:
+  weight: 80
+  reps: 4
+  rpe: 9.5
+  program_goal: strength-5
+bench:
+  weight: 82.5
+  reps: 2
+  rpe: 9.5
+  program_goal: strength-2
+deadlift:
+  weight: 120
+  reps: 5
+  rpe: 9.0
+  program_goal: strength-3
+microplates: true

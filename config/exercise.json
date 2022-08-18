@@ -36,9 +36,9 @@
         "backoff_reps": 3
     },
     "strength-2": {
-        "top_sets": 1,
+        "top_sets": 2,
         "top_reps": 2,
-        "backoff_sets": 3,
+        "backoff_sets": 4,
         "backoff_reps": 4
     },
     "strength-3": {
