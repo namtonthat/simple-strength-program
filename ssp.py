@@ -1,7 +1,6 @@
 import numpy as np
 import yaml
 import pandas as pd
-# from ics import Calendar, Event
 
 def calculate_1rm(reps, weight, rpe):
     """
@@ -137,7 +136,7 @@ def output_training_range(training_range, backoff_training_range=None):
 
 if __name__ == '__main__':
     df_rpe = pd.read_csv('source/rpe-calculator.csv').set_index('RPE')
-    user_config = yaml.load(open('config/user.json', "r"), Loader = yaml.FullLoader)
+    user_config = yaml.load(open('config/user.yaml', "r"), Loader = yaml.FullLoader)
     exercise_config = yaml.load(open('config/exercise.json', "r"), Loader = yaml.FullLoader)
 
     config = {**user_config, **exercise_config}
@@ -156,11 +155,10 @@ if __name__ == '__main__':
                 # backoff section
                 backoff_training_range = calculate_training_range(one_rm, backoff_reps, rpe_backoff)
 
-                get_accessory_lifts(one_rm, lift, backoff_reps, config)
+                acc_training_range = get_accessory_lifts(one_rm, lift, top_reps, config)
                 output_training_range(top_training_range, backoff_training_range)
             else:
-            # strength section
+                # volume section
                 max_sets, max_reps, rpe_max = get_sets_reps(config, program_goal)
-                print(f'{max_sets} sets of {max_reps} reps')
                 training_range = calculate_training_range(one_rm, max_reps, rpe_max)
                 output_training_range(training_range)
