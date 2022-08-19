@@ -8,8 +8,7 @@ def calculate_1rm(reps, weight, rpe):
     Use Brzycki's formula to calculate the theortical 1RM
     """
     one_rm_pct = df_rpe[f'{reps}'].to_dict().get(rpe)
-    one_rm = round_weights(weight / one_rm_pct)
-    # one_rm = int(weight / (1.0278 - (0.0278 * reps)))
+    one_rm = int(np.round(np.floor(weight / one_rm_pct), 0))
     return one_rm
 
 def round_weights(weight, microplates = False):
@@ -19,7 +18,7 @@ def round_weights(weight, microplates = False):
     if microplates:
         pl_weight = int(np.floor(weight))
     else:
-        pl_weight = round(np.floor(weight / 2.5)) * 2.5
+        pl_weight = round(np.ceil(weight / 2.5)) * 2.5
 
     return pl_weight
 
@@ -38,22 +37,37 @@ def calculate_training_range(one_rm, reps, rpe_schema):
     training_range  = [round_weights(i, microplates) for i in training_weight]
 
     # iterate through training range to make sure there is enough spacing between the numbers
-    if len(set(training_range)) < len(training_range):
-        training_range = seperate_training_range(training_range)
+    if check_weekly_difference(training_range):
+        training_range = seperate_training_range(training_range, microplates)
 
     return training_range
 
-def seperate_training_range(training_range):
+def seperate_training_range(training_range, microplates):
     """
-    Ensures there's enough gap between the weekly values to gain strength
-    by setting the highest value the maximum limit and then calculating
-    even spacing between the values
+    Round the training range to the next 5kg
     """
-    max = training_range[-1]
-    min = 0.875 * max
-    new_training_range = np.linspace(min, max, len(training_range))
-    new_training_range = [round_weights(i) for i in new_training_range]
-    return new_training_range
+    increment = 2.5
+    if microplates:
+        increment = 1
+
+    # Define limits
+    min_weight = np.floor(training_range[0] / 5) * 5
+    max_weight = np.ceil(training_range[-1]/ 2.5 ) * 2.5
+    # Create even split but then increase RPE
+    training_range = np.linspace(min_weight, max_weight, 5).tolist()
+
+    for week, weight in enumerate(training_range, 0):
+        if weight != min_weight and weight != max_weight:
+            training_range[week] = np.ceil(weight / increment) * increment
+
+    return training_range
+
+def check_weekly_difference(training_range):
+    weekly_difference = np.diff(training_range).tolist()
+    for weekly_diff in weekly_difference:
+        if weekly_diff <= 2.5:
+            return True
+    return False
 
 def get_sets_reps(config, program_goal):
     """
@@ -74,8 +88,9 @@ def get_sets_reps(config, program_goal):
     backoff_sets = program_schema["backoff_sets"]
     backoff_reps = program_schema["backoff_reps"]
     rpe_backoff  = config["rpe_pref"][program_type]["backoff_sets"]
+    backoff_list = [backoff_sets, backoff_reps, rpe_backoff]
 
-    strength_list.extend([backoff_sets, backoff_reps, rpe_backoff])
+    strength_list.extend(backoff_list)
     return strength_list
 
 def get_user_config(lift):
@@ -91,6 +106,21 @@ def get_user_config(lift):
 
     return program_goal, program_type, reps, weight, rpe, rpe_pref
 
+def get_accessory_lifts(one_rm, lift, top_reps, config):
+    """
+    Get the accessory lifts for the user
+    """
+    accessory_lifts = config["accessory_lifts"][lift]
+    for accessory_lift in accessory_lifts.keys():
+        lift_stats = accessory_lifts[accessory_lift]
+        max_pct = lift_stats['max']
+        [min_reps, max_reps] = lift_stats['reps']
+        acc_one_rm = one_rm * max_pct
+
+        min_accessory_weight = calculate_training_range(acc_one_rm, max_reps, rpe_backoff)
+        max_accessory_weight = calculate_training_range(acc_one_rm, min_reps, rpe_backoff)
+        return min_accessory_weight, max_accessory_weight
+
 def output_training_range(training_range, backoff_training_range=None):
     """
     Output the training range to the console
@@ -103,23 +133,7 @@ def output_training_range(training_range, backoff_training_range=None):
     else:
         for week, weight in enumerate(training_range, 1):
             print(f'Week {week} \n'
-                f'{max_sets} x {max_reps}: {weight}'
-            )
-
-def get_accessory_lifts(one_rm, lift, backoff_reps, config):
-    """
-    Get the accessory lifts for the user
-    """
-    accessory_lifts = config["accessory_lifts"][lift]
-    accessory_reps = 8
-    for accessory_lift in accessory_lifts.keys():
-        # convert min and max percentages into RPE values as a percentage of 1RM
-        [min_rpe, max_rpe] = accessory_lifts[accessory_lift]
-        accessory_rpe = np.linspace(min_rpe, max_rpe, 5).tolist()
-        accessory_rpe = [round(i * 20) /2 for i in accessory_rpe]
-        print(accessory_reps)
-        accessory_weight = calculate_training_range(one_rm, accessory_reps, accessory_rpe)
-        print(f"{accessory_lift}: {accessory_weight}")
+                f'{backoff_sets} x {backoff_reps}: {weight}')
 
 if __name__ == '__main__':
     df_rpe = pd.read_csv('source/rpe-calculator.csv').set_index('RPE')
@@ -129,7 +143,7 @@ if __name__ == '__main__':
     config = {**user_config, **exercise_config}
 
     for lift in config.keys():
-        if lift in ("squat", "bench", "deadlift"):
+        if lift in ("squat", "bench", "deadlift", "overhead-press"):
             program_goal, program_type, reps, weight, rpe, rpe_pref  = get_user_config(lift)
 
             one_rm = calculate_1rm(reps, weight, rpe)

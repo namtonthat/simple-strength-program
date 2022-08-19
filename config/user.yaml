@@ -13,4 +13,9 @@ deadlift:
   reps: 5
   rpe: 9.0
   program_goal: strength-3
-microplates: true
+overhead-press:
+  weight: 40
+  reps: 6
+  rpe: 9.0
+  program_goal: strength-4
+microplates: True
