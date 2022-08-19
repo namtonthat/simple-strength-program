@@ -55,6 +55,7 @@ def seperate_training_range(training_range, microplates):
     # Create even split but then increase RPE
     training_range = np.linspace(min_weight, max_weight, 5).tolist()
 
+    # Update the values in between to ensure that the spacing is a little more accurate
     for week, weight in enumerate(training_range, 0):
         if weight != min_weight and weight != max_weight:
             training_range[week] = np.ceil(weight / increment) * increment

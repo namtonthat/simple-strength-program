@@ -1,6 +1,6 @@
 A simple Python script to automate the creation of a powerlifting strength program.
 
-## How to use
+## 🏁 Getting Started
 1. Clone repo into local directory and navigate to repo.
 2. Install packages required by `requirements.txt`.
 3. Update `user.json` to reflect your current status.
