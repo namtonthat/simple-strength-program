@@ -115,11 +115,22 @@ def get_accessory_lifts(one_rm, lift, top_reps, config):
         lift_stats = accessory_lifts[accessory_lift]
         max_pct = lift_stats['max']
         [min_reps, max_reps] = lift_stats['reps']
+        rpe_acc = config["rpe_pref"]["accessory_lifts"]["backoff_sets"]
         acc_one_rm = one_rm * max_pct
 
-        min_accessory_weight = calculate_training_range(acc_one_rm, max_reps, rpe_backoff)
-        max_accessory_weight = calculate_training_range(acc_one_rm, min_reps, rpe_backoff)
-        return min_accessory_weight, max_accessory_weight
+        min_accessory_weight = calculate_training_range(acc_one_rm, max_reps, rpe_acc)
+        max_accessory_weight = calculate_training_range(acc_one_rm, min_reps, rpe_acc)
+
+        output_accessory_range(min_accessory_weight, max_accessory_weight, accessory_lift, min_reps, max_reps)
+
+def output_accessory_range(min_tr, max_tr, lift, min_reps, max_reps):
+    """
+    Output the accessory range to the user
+    """
+    print(f"{lift} - 2 - 3 sets @ {min_reps} - {max_reps} reps")
+    for week, (min_weight, max_weight) in enumerate(zip(min_tr, max_tr), 1):
+        print(f"W{week}: {min_weight} - {max_weight} kg")
+
 
 def output_training_range(training_range, backoff_training_range=None):
     """
@@ -156,10 +167,11 @@ if __name__ == '__main__':
                 # backoff section
                 backoff_training_range = calculate_training_range(one_rm, backoff_reps, rpe_backoff)
 
-                acc_training_range = get_accessory_lifts(one_rm, lift, top_reps, config)
                 output_training_range(top_training_range, backoff_training_range)
             else:
-                # volume section
+            # strength section
                 max_sets, max_reps, rpe_max = get_sets_reps(config, program_goal)
                 training_range = calculate_training_range(one_rm, max_reps, rpe_max)
                 output_training_range(training_range)
+
+            get_accessory_lifts(one_rm, lift, top_reps, config)

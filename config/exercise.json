@@ -36,7 +36,7 @@
         },
         "overhead-press": {
             "Delt Raises": {
-                "max": 0.02,
+                "max": 0.2,
                 "reps": [12, 20]
             }
         }
@@ -125,7 +125,7 @@
         "volume": {
             "backoff_sets": [6, 7.5, 8, 8.5, 9.0]
         },
-        "accessories": {
+        "accessory_lifts": {
             "backoff_sets": [7, 7.5, 8, 8.5, 9]
         }
     }
