@@ -1,4 +1,4 @@
-A simple Python script to automate the creation of a powerlifting mesocycle.
+A simple Python script to automate the creation of a powerlifting 5 week mesocycle - based off linear periodization and RPE cycles.
 
 ## 🏁 Getting Started
 1. Clone repo into local directory and navigate to repo.
@@ -11,13 +11,13 @@ A simple Python script to automate the creation of a powerlifting mesocycle.
 - You can set different goals for each lift - if in doubt, there are also `basic` programs to help you get started with strength / volume building
 
 ### 👩‍💻 Basic Programming
-| Type                   | Day 1     | Day 2        | Day 3          | Day 4            |
-| ---------------------- | --------- | ------------ | -------------- | ---------------- |
-| **Compound**           | Squat     | Bench        | Overhead Press | Deadlift         |
-| **Accessory Compound** | Bench     | Deadlift     | Squat          | Bench            |
-| Assisted Compound      | Hamstring | Lats / Delts | Lats / Delts   | Lats / Delts     |
-| Accessory              | Quads     | Legs / Quads | Chest          | Triceps / Biceps |
-| Accessory              | Core      | Triceps      | Biceps + Core  | Triceps          |
+| Type                 | Day 1     | Day 2        | Day 3          | Day 4            |
+| -------------------- | --------- | ------------ | -------------- | ---------------- |
+| Compound             | Squat     | Bench        | Overhead Press | Deadlift         |
+| Compound (Accessory) | Bench     | Deadlift     | Squat          | Bench            |
+| Compound (Assisted)  | Hamstring | Lats / Delts | Lats / Delts   | Lats / Delts     |
+| Accessory            | Quads     | Legs / Quads | Chest          | Triceps / Biceps |
+| Accessory            | Core      | Triceps      | Biceps + Core  | Triceps          |
 
 - Highlighted in bold is the *bare minimum required* to be completed in each mesocycle.
 
