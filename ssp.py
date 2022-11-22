@@ -37,13 +37,25 @@ class LiftWeight:
 
 
 @dataclass
-class CompoundLift:
-    """A compound exercise with sets and reps defined"""
-
+class Exercise:
     backoff_sets: List[LiftWeight]
-    lift_name: str
-    calculated_one_rm: float
+    name: str
+    predicted_one_rm: float
     top_sets: Optional[List[LiftWeight]] = None
+
+    @property
+    def weekly_sets(self) -> List[LiftWeight]:
+        """
+        Return the weekly training set for the exercise
+        """
+        if self.top_sets:
+            weekly_tupled_sets = list(
+                itertools.zip_longest(self.top_sets, self.backoff_sets)
+            )
+            weekly_sets = [item for sublist in weekly_tupled_sets for item in sublist]
+            return weekly_sets
+        else:
+            return self.backoff_sets
 
 
 def calculate_1rm(reps, weight, rpe):
@@ -71,26 +83,51 @@ def calculate_training_range(one_rm, reps, rpe_schema) -> List[LiftWeight]:
     """
     Calculate the training day progression for a given 1RM
     """
-    df_ref = df_rpe[f"{reps}"].to_dict()
+    df_ref = DF_RPE[f"{reps}"].to_dict()
     week_weights = []
     week_rpes = []
-
+    # print(df_ref)
     for rpe in rpe_schema:
         week_rpe = df_ref.get(rpe)
         week_weight = week_rpe * one_rm
-
+        # print(week_rpe)
+        # print(week_weight)
         week_rpes.append(week_rpe)
         week_weights.append(week_weight)
 
     # round the weights to the nearest 2.5kg
-    week_weights = [round_weights(i, microplates) for i in week_weights]
+    training_range = [round_weights(i) for i in week_weights]
 
     # iterate through training range to make sure there is enough spacing between the numbers
-    training_range = seperate_training_range(week_weights, microplates)
+    training_range = seperate_training_range(training_range)
+
     weights_lifted = list(zip(training_range, itertools.repeat(reps), week_rpes))
     weights_lifted = [LiftWeight(*i) for i in weights_lifted]
 
     return weights_lifted
+
+
+def seperate_training_range(training_range):
+    """
+    Update the training values to ensure
+    that there is enough seperation between the weeks
+    """
+    increment = 2.5
+    if MICROPLATES:
+        increment = 1
+
+    # Define limits
+    min_weight = np.floor(training_range[0] / 10) * 10
+    max_weight = np.ceil(training_range[-1] / 5) * 5
+
+    # Create even split but then increase RPE
+    training_range = np.linspace(min_weight, max_weight, len(training_range)).tolist()
+
+    for week, weight in enumerate(training_range, 0):
+        if weight != min_weight and weight != max_weight:
+            training_range[week] = np.ceil(weight / increment) * increment
+
+    return training_range
 
 
 def seperate_training_range(training_range, microplates):
@@ -187,7 +224,6 @@ def output_training_range(backoff_training_range, strength_training_range=None):
 
 if __name__ == "__main__":
     LOGGER.info("Reading source data and configs")
-    df_rpe = pd.read_csv("source/rpe-calculator.csv").set_index("RPE")
     defined_rpes = yaml.load(open("source/rpe.yaml", "r"), Loader=yaml.FullLoader)
     exercises = yaml.load(open("config/exercise.json", "r"), Loader=yaml.FullLoader)
 
@@ -195,9 +231,11 @@ if __name__ == "__main__":
     user_lifts = yaml.load(open("config/user_lifts.yaml", "r"), Loader=yaml.FullLoader)
     user_gym = yaml.load(open("config/user_gym.yaml", "r"), Loader=yaml.FullLoader)
 
-    # manual loading values
-    microplates = user_gym.get("microplates")
+    # Global variables
+    DF_RPE = pd.read_csv("source/rpe-calculator.csv").set_index("RPE")
+    MICROPLATES = user_gym.get("microplates")
 
+    full_program = []
     for lift, stats in user_lifts.items():
         # clear previous stats
         top_training_range = []
@@ -224,25 +262,13 @@ if __name__ == "__main__":
             rpe_schema=rpes.get("backoff"),
         )
 
-        print(
-            CompoundLift(
+        full_program.append(
+            Exercise(
                 backoff_sets=backoff_training_range,
-                lift_name=lift,
-                calculated_one_rm=one_rm,
+                name=lift,
+                predicted_one_rm=one_rm,
                 top_sets=top_training_range,
             )
         )
-        # compound_program = output_training_range(
-        #     backoff_training_range
-        # )
-        # else:
-        #     # strength section
-        #     max_sets, max_reps, rpe_max = get_sets_reps(config, program_goal)
-        #     training_range = calculate_training_range(one_rm, max_reps, rpe_max)
-        #     compound_program = output_training_range(
-        #         backoff_training_range=training_range
-        #     )
-        #     full_program.append(compound_program)
 
-        # accessory_program = get_accessory_lifts(one_rm, lift, config)
-        # full_program.append(accessory_program)
+    # output training program
