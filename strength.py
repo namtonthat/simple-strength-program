@@ -7,22 +7,12 @@ Returns: outputs/program.txt
 import numpy as np
 import yaml
 import pandas as pd
+from dataclasses import dataclass
 
-class RatingOfPerceivedExertion:
-
-
-class LiftWeight:
-    weight: float
-
-    @property
-    def one_rm(self) -> float:
-        """
-        Use Brzycki's formula to calculate the theortical 1RM
-        """
-        one_rm_pct = df_rpe[f"{reps}"].to_dict().get(rpe)
-        one_rm = int(np.round(np.floor(weight / one_rm_pct), 0))
-        return one_rm
-
+import logging
+logging.basicConfig()
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.INFO)
 
 def round_weights(weight, microplates=False):
     """
@@ -36,16 +26,15 @@ def round_weights(weight, microplates=False):
     return pl_weight
 
 
-
-
 if __name__ == "__main__":
-    user_config = yaml.load(open("config/user.yaml", "r"), Loader=yaml.FullLoader)
-    exercise_config = yaml.load(
-        open("config/exercise.json", "r"), Loader=yaml.FullLoader
-    )
+    LOGGER.info('Reading source data and configs')
+    df_rpe = pd.read_csv('source/rpe-calculator.csv').set_index("RPE")
+    rpe_schema = yaml.load(open('source/rpe.yaml', "r"), Loader=yaml.FullLoader)
+    exercises = yaml.load(open('config/exercise.json', "r"), Loader = yaml.FullLoader)
 
-    config = {**user_config, **exercise_config}
-    full_program = []
+    LOGGER.info('Reading user inputs')
+    user_lifts = yaml.load(open('config/user_lifts.yaml', "r"), Loader = yaml.FullLoader)
+    user_gym = yaml.load(open('config/user_gym.yaml', "r"), Loader = yaml.FullLoader)
 
     for lift in config.keys():
         if lift in ("squat", "bench", "deadlift", "overhead-press"):

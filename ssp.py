@@ -6,6 +6,44 @@ Returns: outputs/program.txt
 import numpy as np
 import yaml
 import pandas as pd
+import itertools
+from typing import List, Optional
+from dataclasses import dataclass
+
+import logging
+
+# configs
+logging.basicConfig()
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.INFO)
+
+
+@dataclass
+class LiftWeight:
+    """A dataclass to store the weight for a lift"""
+
+    weight: float
+    reps: int
+    rpe: float
+
+    @property
+    def one_rep_max(self) -> float:
+        """
+        Use Brzycki's formula to calculate the theortical 1RM
+        """
+        one_rm_pct = df_rpe.get(f"{self.reps}").to_dict().get(self.rpe)
+        one_rm = int(np.round(np.floor(self.weight / one_rm_pct), 0))
+        return one_rm
+
+
+@dataclass
+class CompoundLift:
+    """A compound exercise with sets and reps defined"""
+
+    backoff_sets: List[LiftWeight]
+    lift_name: str
+    calculated_one_rm: float
+    top_sets: Optional[List[LiftWeight]] = None
 
 
 def calculate_1rm(reps, weight, rpe):
@@ -29,25 +67,30 @@ def round_weights(weight, microplates=False):
     return pl_weight
 
 
-def calculate_training_range(one_rm, reps, rpe_schema):
+def calculate_training_range(one_rm, reps, rpe_schema) -> List[LiftWeight]:
     """
     Calculate the training day progression for a given 1RM
     """
     df_ref = df_rpe[f"{reps}"].to_dict()
-    microplates = config["microplates"]
+    week_weights = []
+    week_rpes = []
 
-    training_weight = []
     for rpe in rpe_schema:
-        week_weight = df_ref.get(rpe) * one_rm
-        training_weight.append(week_weight)
+        week_rpe = df_ref.get(rpe)
+        week_weight = week_rpe * one_rm
 
-    training_range = [round_weights(i, microplates) for i in training_weight]
+        week_rpes.append(week_rpe)
+        week_weights.append(week_weight)
+
+    # round the weights to the nearest 2.5kg
+    week_weights = [round_weights(i, microplates) for i in week_weights]
 
     # iterate through training range to make sure there is enough spacing between the numbers
-    if check_weekly_difference(training_range):
-        training_range = seperate_training_range(training_range, microplates)
+    training_range = seperate_training_range(week_weights, microplates)
+    weights_lifted = list(zip(training_range, itertools.repeat(reps), week_rpes))
+    weights_lifted = [LiftWeight(*i) for i in weights_lifted]
 
-    return training_range
+    return weights_lifted
 
 
 def seperate_training_range(training_range, microplates):
@@ -78,45 +121,6 @@ def check_weekly_difference(training_range):
         if weekly_diff <= 2.5:
             return True
     return False
-
-
-def get_sets_reps(config, program_goal):
-    """
-    Get the number of sets and reps for a given program goal
-    Strength goals are top sets and followed by backoffs
-    whereas volume sets do not contain top sets
-    """
-    program_schema = config["exercise_pref"][program_goal]
-    program_type = program_goal.split("-")[0]
-    strength_list = []
-
-    if program_type == "strength":
-        top_sets = program_schema["top_sets"]
-        top_reps = program_schema["top_reps"]
-        rpe_top = config["rpe_pref"][program_type]["top_sets"]
-        strength_list = [top_sets, top_reps, rpe_top]
-
-    backoff_sets = program_schema["backoff_sets"]
-    backoff_reps = program_schema["backoff_reps"]
-    rpe_backoff = config["rpe_pref"][program_type]["backoff_sets"]
-    backoff_list = [backoff_sets, backoff_reps, rpe_backoff]
-
-    strength_list.extend(backoff_list)
-    return strength_list
-
-
-def get_user_config(lift):
-    """
-    Return variables assigned from dictionary
-    """
-    program_goal = config[lift]["program_goal"]
-    program_type = program_goal.split("-")[0]
-    reps = config[lift]["reps"]
-    weight = config[lift]["weight"]
-    rpe = config[lift]["rpe"]
-    rpe_pref = config["rpe_pref"][program_type]
-
-    return program_goal, program_type, reps, weight, rpe, rpe_pref
 
 
 def get_accessory_lifts(one_rm, lift, config):
@@ -182,53 +186,63 @@ def output_training_range(backoff_training_range, strength_training_range=None):
 
 
 if __name__ == "__main__":
+    LOGGER.info("Reading source data and configs")
     df_rpe = pd.read_csv("source/rpe-calculator.csv").set_index("RPE")
-    user_config = yaml.load(open("config/user.yaml", "r"), Loader=yaml.FullLoader)
-    exercise_config = yaml.load(
-        open("config/exercise.json", "r"), Loader=yaml.FullLoader
-    )
+    defined_rpes = yaml.load(open("source/rpe.yaml", "r"), Loader=yaml.FullLoader)
+    exercises = yaml.load(open("config/exercise.json", "r"), Loader=yaml.FullLoader)
 
-    config = {**user_config, **exercise_config}
-    full_program = []
+    LOGGER.info("Reading user inputs")
+    user_lifts = yaml.load(open("config/user_lifts.yaml", "r"), Loader=yaml.FullLoader)
+    user_gym = yaml.load(open("config/user_gym.yaml", "r"), Loader=yaml.FullLoader)
 
-    for lift in config.keys():
-        if lift in ("squat", "bench", "deadlift", "overhead-press"):
-            program_goal, program_type, reps, weight, rpe, rpe_pref = get_user_config(
-                lift
+    # manual loading values
+    microplates = user_gym.get("microplates")
+
+    for lift, stats in user_lifts.items():
+        # clear previous stats
+        top_training_range = []
+        backoff_training_range = []
+
+        one_rm = LiftWeight(
+            weight=stats.get("weight"), reps=stats.get("reps"), rpe=stats.get("rpe")
+        ).one_rep_max
+
+        goal = stats.get("program-goal")
+        program_type = goal.split("-")[0]
+        rpes = defined_rpes.get(program_type)
+        exercise_volume = exercises.get("program-goals").get(f"{goal}")
+
+        # print(f"\n{str.capitalize(lift)} (1RM): {one_rm} kg")
+        if program_type == "strength":
+            top_training_range = calculate_training_range(
+                one_rm, reps=exercise_volume.get("top-reps"), rpe_schema=rpes.get("top")
             )
-            one_rm = calculate_1rm(reps, weight, rpe)
-            print(f"\n{str.capitalize(lift)} (1RM): {one_rm} kg")
 
-            if "strength" in program_goal:
-                (
-                    top_sets,
-                    top_reps,
-                    rpe_top,
-                    backoff_sets,
-                    backoff_reps,
-                    rpe_backoff,
-                ) = get_sets_reps(config, program_goal)
-                # strength section
-                top_training_range = calculate_training_range(one_rm, top_reps, rpe_top)
-                # backoff section
-                backoff_training_range = calculate_training_range(
-                    one_rm, backoff_reps, rpe_backoff
-                )
+        backoff_training_range = calculate_training_range(
+            one_rm,
+            reps=exercise_volume.get("backoff-reps"),
+            rpe_schema=rpes.get("backoff"),
+        )
 
-                compound_program = output_training_range(
-                    backoff_training_range, strength_training_range=top_training_range
-                )
-            else:
-                # strength section
-                max_sets, max_reps, rpe_max = get_sets_reps(config, program_goal)
-                training_range = calculate_training_range(one_rm, max_reps, rpe_max)
-                compound_program = output_training_range(
-                    backoff_training_range=training_range
-                )
-                full_program.append(compound_program)
+        print(
+            CompoundLift(
+                backoff_sets=backoff_training_range,
+                lift_name=lift,
+                calculated_one_rm=one_rm,
+                top_sets=top_training_range,
+            )
+        )
+        # compound_program = output_training_range(
+        #     backoff_training_range
+        # )
+        # else:
+        #     # strength section
+        #     max_sets, max_reps, rpe_max = get_sets_reps(config, program_goal)
+        #     training_range = calculate_training_range(one_rm, max_reps, rpe_max)
+        #     compound_program = output_training_range(
+        #         backoff_training_range=training_range
+        #     )
+        #     full_program.append(compound_program)
 
-            accessory_program = get_accessory_lifts(one_rm, lift, config)
-            full_program.append(accessory_program)
-
-    with open('outputs/program.txt', 'w+') as f:
-    f.write('\n'.join(full_program))
+        # accessory_program = get_accessory_lifts(one_rm, lift, config)
+        # full_program.append(accessory_program)
