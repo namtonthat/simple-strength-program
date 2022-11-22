@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "simple-strength-program"
+version = "0.1.0"
+description = ""
+authors = ["Nam Tonthat <n.nam.tonthat@gmail.com>"]
+readme = "README.md"
+packages = [{include = "simple_strength_program"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pandas = "^1.5.1"
+numpy = "^1.23.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

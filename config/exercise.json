@@ -2,131 +2,167 @@
     "accessory_lifts": {
         "bench": {
             "Paused Bench": {
-                "max": 0.7,
-                "reps": [3, 6]
+                "max_rpe": 0.7,
+                "min_reps": 3,
+                "max_reps": 6
             },
             "3 Count Paused Bench": {
-                "max": 0.65,
-                "reps": [3, 6]
+                "max_rpe": 0.65,
+                "min_reps": 3,
+                "max_reps": 6
             },
             "Incline Bench Press": {
-                "max": 0.85,
-                "reps": [4, 8]
+                "max_rpe": 0.8,
+                "min_reps": 4,
+                "max_reps": 12
             }
         },
         "squat": {
             "Romanian Deadlifts": {
-                "max": 0.85,
-                "reps": [6, 10]
+                "max_rpe": 0.65,
+                "min_reps": 6,
+                "max_reps": 10
             },
             "Safety Squat Bar": {
-                "max": 0.85,
-                "reps": [3, 6]
+                "max_rpe": 0.65,
+                "min_reps": 3,
+                "max_reps": 6
             },
             "Pendulum Squat": {
-                "max": 0.8,
-                "reps": [8, 15]
+                "max_rpe": 0.5,
+                "min_reps": 8,
+                "max_reps": 15
             }
         },
         "deadlift": {
             "Conventional Deadlifts": {
-                "max": 0.85,
-                "reps": [4, 6]
+                "max_rpe": 0.85,
+                "min_reps": 4,
+                "max_reps": 6
             }
         },
         "overhead-press": {
             "Delt Raises": {
-                "max": 0.2,
-                "reps": [12, 20]
+                "max_rpe": 0.2,
+                "min_reps": 12,
+                "max_reps": 20
+            },
+            "Face Pulls": {
+                "max_rpe": 0.35,
+                "min_reps": 12,
+                "max_reps": 20
             }
         }
     },
     "accessories": {
         "bench": [
             "Tricep Extensions",
-            "Overhead Press"
+            "Overhead Press",
+            "Chest Dips"
         ],
         "squat": [
             "Paused Squat",
-            "3 Count Paused squat"
+            "3 Count Paused Squat"
         ],
         "deadlift": [
             "Paused Deadlift",
             "Meadow Rows"
         ]
     },
-    "exercise_pref":
-    {
-    "strength-1": {
-        "top_sets": 1,
-        "top_reps": 1,
-        "backoff_sets": 3,
-        "backoff_reps": 3
+    "exercise_pref": {
+        "strength-1": {
+            "top_sets": 1,
+            "top_reps": 1,
+            "backoff_sets": 3,
+            "backoff_reps": 3
+        },
+        "strength-2": {
+            "top_sets": 2,
+            "top_reps": 2,
+            "backoff_sets": 4,
+            "backoff_reps": 4
+        },
+        "strength-3": {
+            "top_sets": 1,
+            "top_reps": 3,
+            "backoff_sets": 3,
+            "backoff_reps": 5
+        },
+        "strength-4": {
+            "top_sets": 1,
+            "top_reps": 3,
+            "backoff_sets": 3,
+            "backoff_reps": 6
+        },
+        "strength-5": {
+            "top_sets": 1,
+            "top_reps": 4,
+            "backoff_sets": 2,
+            "backoff_reps": 6
+        },
+        "strength-6": {
+            "top_sets": 1,
+            "top_reps": 5,
+            "backoff_sets": 3,
+            "backoff_reps": 6
+        },
+        "strength-basic": {
+            "top_sets": 0,
+            "top_reps": 0,
+            "backoff_sets": 5,
+            "backoff_reps": 5
+        },
+        "volume-basic": {
+            "backoff_sets": 3,
+            "backoff_reps": 6
+        },
+        "volume-1": {
+            "backoff_sets": 3,
+            "backoff_reps": 8
+        },
+        "volume-2": {
+            "backoff_sets": 4,
+            "backoff_reps": 8
+        },
+        "volume-3": {
+            "backoff_sets": 4,
+            "backoff_reps": 8
+        }
     },
-    "strength-2": {
-        "top_sets": 2,
-        "top_reps": 2,
-        "backoff_sets": 4,
-        "backoff_reps": 4
-    },
-    "strength-3": {
-        "top_sets": 1,
-        "top_reps": 3,
-        "backoff_sets": 3,
-        "backoff_reps": 5
-    },
-    "strength-4": {
-        "top_sets": 1,
-        "top_reps": 3,
-        "backoff_sets": 3,
-        "backoff_reps": 6
-    },
-    "strength-5": {
-        "top_sets": 1,
-        "top_reps": 4,
-        "backoff_sets": 2,
-        "backoff_reps": 6
-    },
-    "strength-6": {
-        "top_sets": 1,
-        "top_reps": 5,
-        "backoff_sets": 3,
-        "backoff_reps": 6
-    },
-    "strength-basic": {
-        "top_sets": 0,
-        "top_reps": 0,
-        "backoff_sets": 5,
-        "backoff_reps": 5
-    },
-    "volume-basic": {
-        "backoff_sets": 3,
-        "backoff_reps": 6
-    },
-    "volume-1": {
-        "backoff_sets": 3,
-        "backoff_reps": 8
-    },
-    "volume-2": {
-        "backoff_sets": 4,
-        "backoff_reps": 8
-    },
-    "volume-3": {
-        "backoff_sets": 4,
-        "backoff_reps": 8
-    }
-    },
-    "rpe_pref":
-    {
+    "rpe_pref": {
         "strength": {
-            "top_sets": [6.5, 7.5, 8, 8.5, 9.5],
-            "backoff_sets": [5, 6, 7, 7.5, 8]
+            "top_sets": [
+                6.5,
+                7.5,
+                8,
+                8.5,
+                9.5
+            ],
+            "backoff_sets": [
+                5,
+                6,
+                7,
+                7.5,
+                8
+            ]
         },
         "volume": {
-            "backoff_sets": [6, 7.5, 8, 8.5, 9.0]
+            "backoff_sets": [
+                6,
+                7.5,
+                8,
+                8.5,
+                9.0
+            ]
         },
         "accessory_lifts": {
-            "backoff_sets": [7, 7.5, 8, 8.5, 9]
+            "backoff_sets": [
+                7,
+                7.5,
+                8,
+                8.5,
+                9
+            ]
         }
     }
 }
