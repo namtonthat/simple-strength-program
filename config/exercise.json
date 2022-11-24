@@ -1,53 +1,53 @@
 {
     "accessory-lifts": {
         "bench": {
-            "Paused Bench": {
+            "paused-bench": {
                 "max-rpe": 0.7,
                 "min-reps": 3,
                 "max-reps": 6
             },
-            "3 Count Paused Bench": {
+            "3-count-paused-bench": {
                 "max-rpe": 0.65,
                 "min-reps": 3,
                 "max-reps": 6
             },
-            "Incline Bench Press": {
+            "incline-bench-press": {
                 "max-rpe": 0.8,
                 "min-reps": 4,
                 "max-reps": 12
             }
         },
         "squat": {
-            "Romanian Deadlifts": {
+            "romanian-deadlifts": {
                 "max-rpe": 0.65,
                 "min-reps": 6,
                 "max-reps": 10
             },
-            "Safety Squat Bar": {
+            "safety-squat-bar": {
                 "max-rpe": 0.65,
                 "min-reps": 3,
                 "max-reps": 6
             },
-            "Pendulum Squat": {
+            "pendulum-squat": {
                 "max-rpe": 0.5,
                 "min-reps": 8,
                 "max-reps": 15
             }
         },
         "deadlift": {
-            "Conventional Deadlifts": {
+            "conventional-deadlifts": {
                 "max-rpe": 0.85,
                 "min-reps": 4,
                 "max-reps": 6
             }
         },
         "overhead-press": {
-            "Delt Raises": {
+            "delt-raises": {
                 "max-rpe": 0.2,
                 "min-reps": 12,
                 "max-reps": 20
             },
-            "Face Pulls": {
+            "face-pulls": {
                 "max-rpe": 0.35,
                 "min-reps": 12,
                 "max-reps": 20
@@ -56,17 +56,17 @@
     },
     "accessories": {
         "bench": [
-            "Tricep Extensions",
-            "Overhead Press",
-            "Chest Dips"
+            "tricep-extensions",
+            "overhead-press",
+            "chest-dips"
         ],
         "squat": [
-            "Paused Squat",
-            "3 Count Paused Squat"
+            "paused-squat",
+            "3-count-paused-squat"
         ],
         "deadlift": [
-            "Paused Deadlift",
-            "Meadow Rows"
+            "paused-deadlift",
+            "meadow-rows"
         ]
     },
     "program-goals": {

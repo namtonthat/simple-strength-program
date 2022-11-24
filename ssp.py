@@ -26,18 +26,18 @@ class LiftWeight:
     reps: int
     rpe: float
 
-    @property
-    def one_rep_max(self) -> float:
-        """
-        Use Brzycki's formula to calculate the theortical 1RM
-        """
-        one_rm_pct = df_rpe.get(f"{self.reps}").to_dict().get(self.rpe)
-        one_rm = int(np.round(np.floor(self.weight / one_rm_pct), 0))
-        return one_rm
+@dataclass
+class OneRepMax:
+    """A dataclass to store the one rep max for a lift"""
+
+    lift: str
+    weight: float
 
 
 @dataclass
 class Exercise:
+    """A generic class for an exercise"""
+
     backoff_sets: List[LiftWeight]
     name: str
     predicted_one_rm: float
@@ -58,7 +58,7 @@ class Exercise:
             return self.backoff_sets
 
 
-def calculate_1rm(reps, weight, rpe):
+def calculate_1rm(reps, rpe, weight):
     """
     Use Brzycki's formula to calculate the theortical 1RM
     """
@@ -110,7 +110,7 @@ def calculate_training_range(one_rm, reps, rpe_schema) -> List[LiftWeight]:
 def seperate_training_range(training_range):
     """
     Update the training values to ensure
-    that there is enough seperation between the weeks
+    that there is enough separation between each week
     """
     increment = 2.5
     if MICROPLATES:
@@ -160,68 +160,6 @@ def check_weekly_difference(training_range):
     return False
 
 
-def get_accessory_lifts(one_rm, lift, config):
-    """
-    Get the accessory lifts for the user
-    """
-    accessory_lifts = config["accessory_lifts"][lift]
-    for accessory_lift in accessory_lifts.keys():
-        lift_stats = accessory_lifts[accessory_lift]
-        max_pct = lift_stats["max"]
-        [min_reps, max_reps] = lift_stats["reps"]
-        rpe_acc = config["rpe_pref"]["accessory_lifts"]["backoff_sets"]
-        acc_one_rm = one_rm * max_pct
-
-        min_accessory_weight = calculate_training_range(acc_one_rm, max_reps, rpe_acc)
-        max_accessory_weight = calculate_training_range(acc_one_rm, min_reps, rpe_acc)
-
-        output_accessory_range(
-            min_accessory_weight,
-            max_accessory_weight,
-            accessory_lift,
-            min_reps,
-            max_reps,
-        )
-
-
-def output_accessory_range(min_tr, max_tr, lift, min_reps, max_reps):
-    """
-    Output the accessory range to the user
-    """
-    accessory_header = f"{lift} - 2 - 3 sets @ {min_reps} - {max_reps} reps"
-
-    accessory_program = [accessory_header]
-    for week, (min_weight, max_weight) in enumerate(zip(min_tr, max_tr), 1):
-        accessory = f"W{week}: {min_weight} - {max_weight} kg"
-        accessory_program.append(accessory)
-    print(accessory_program)
-    return "\n".join(accessory_program)
-
-
-def output_training_range(backoff_training_range, strength_training_range=None):
-    """
-    Output the training range to the console
-    """
-    program = []
-    if strength_training_range:
-        for week, (top_weight, backoff_weight) in enumerate(
-            zip(strength_training_range, backoff_training_range), 1
-        ):
-            week_program = (
-                f"Week {week} \n"
-                f"{top_sets} x {top_reps}: {top_weight}\n"
-                f"{backoff_sets} x {backoff_reps}: {backoff_weight}"
-            )
-            program.append(week_program)
-    else:
-        for week, weight in enumerate(backoff_training_range, 1):
-            week_program = f"Week {week} \n" f"{max_sets} x {max_reps}: {weight}"
-            program.append(week_program)
-
-    print(program)
-    return "\n".join(program)
-
-
 if __name__ == "__main__":
     LOGGER.info("Reading source data and configs")
     defined_rpes = yaml.load(open("source/rpe.yaml", "r"), Loader=yaml.FullLoader)
@@ -235,15 +173,21 @@ if __name__ == "__main__":
     DF_RPE = pd.read_csv("source/rpe-calculator.csv").set_index("RPE")
     MICROPLATES = user_gym.get("microplates")
 
+    max_lifts = []
     full_program = []
     for lift, stats in user_lifts.items():
         # clear previous stats
         top_training_range = []
         backoff_training_range = []
 
-        one_rm = LiftWeight(
-            weight=stats.get("weight"), reps=stats.get("reps"), rpe=stats.get("rpe")
-        ).one_rep_max
+        one_rm = calculate_1rm(
+            reps=stats.get("reps"), rpe=stats.get("rpe"), weight=stats.get("weight")
+        )
+
+        max_strength = OneRepMax(
+            lift=lift
+            weight=one_rm
+        )
 
         goal = stats.get("program-goal")
         program_type = goal.split("-")[0]
@@ -262,13 +206,16 @@ if __name__ == "__main__":
             rpe_schema=rpes.get("backoff"),
         )
 
-        full_program.append(
-            Exercise(
+        compound_lift = Exercise(
                 backoff_sets=backoff_training_range,
                 name=lift,
                 predicted_one_rm=one_rm,
                 top_sets=top_training_range,
             )
-        )
+
+
+        # save it to pretty print
+        max_lifts.append(max_strength)
+        full_program.append(compound_lift)
 
     # output training program
