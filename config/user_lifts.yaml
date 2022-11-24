@@ -9,12 +9,7 @@ bench:
   rpe: 9.5
   program-goal: volume-3
 deadlift:
-  weight: 60
+  weight: 160
   reps: 6
   rpe: 9.5
-  program-goal: volume-3
-overhead-press:
-  weight: 10
-  reps: 6
-  rpe: 9.0
   program-goal: volume-3

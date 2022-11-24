@@ -57,6 +57,22 @@ class Exercise:
         else:
             return self.backoff_sets
 
+    @property
+    def output_print(self) -> str:
+        """
+        Prettify output to the user
+        """
+
+        outputs = [f"{self.name}:\n"]
+        if self.top_sets:
+            for week, (top, backoff) in enumerate(self.weekly_sets, 1):
+                output += f"W{week}: {top.weight} kg x {top.reps}\n"
+                output += f"W{week}: {backoff.weight} kg x {backoff.reps}\n"
+                outputs.append(output)
+        else:
+            for week, weight in enumerate(self.weekly_sets, 1):
+                output += f"W{week}: {weight.weight} kg\n"
+        return output
 
 def calculate_1rm(reps, rpe, weight):
     """
