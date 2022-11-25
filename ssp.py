@@ -162,7 +162,6 @@ def calculate_training_range(one_rm, reps, rpe_schema) -> List[LiftWeight]:
 
 def has_weekly_difference(training_range):
     weekly_difference = np.diff(training_range).tolist()
-    print(weekly_difference)
     for weekly_diff in weekly_difference:
         if weekly_diff <= 2.5:
             return False
