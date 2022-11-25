@@ -193,7 +193,7 @@ if __name__ == "__main__":
     )
     try:
         user_gym = yaml.load(
-            open(f"profiles/{user_profile}gym.yaml", "r"), Loader=yaml.FullLoader
+            open(f"profiles/{user_profile}/gym.yaml", "r"), Loader=yaml.FullLoader
         )
     except FileNotFoundError:
         user_gym = False
@@ -209,6 +209,7 @@ if __name__ == "__main__":
 
     for compound_lift, stats in user_lifts.items():
         # clear previous stats
+        LOGGER.info("Creating program for %s", compound_lift)
         top_training_range = []
         backoff_training_range = []
 
@@ -236,12 +237,14 @@ if __name__ == "__main__":
             rpe_schema=rpes.get("backoff"),
         )
 
-        compound_lift = Exercise(
+        compound = Exercise(
             backoff_sets=backoff_training_range,
             name=compound_lift,
             predicted_one_rm=lift_one_rep_max,
             top_sets=top_training_range,
         )
+
+        full_program.append(compound)
 
         accessories = exercises.get("accessory-lifts").get(f"{compound_lift}")
         for accessory, stats in accessories.items():
@@ -275,5 +278,6 @@ if __name__ == "__main__":
 
             accessory_program.append(low_volume_exercise)
             accessory_program.append(high_volume_exercise)
-
+    for exercise in full_program:
+        print(exercise.output_print)
     # output training program
