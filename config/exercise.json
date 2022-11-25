@@ -19,12 +19,12 @@
         },
         "squat": {
             "romanian-deadlifts": {
-                "max-onerm-pct": 0.65,
+                "max-onerm-pct": 0.75,
                 "min-reps": 6,
                 "max-reps": 10
             },
             "safety-squat-bar": {
-                "max-onerm-pct": 0.65,
+                "max-onerm-pct": 0.75,
                 "min-reps": 3,
                 "max-reps": 6
             },
@@ -36,7 +36,7 @@
         },
         "deadlift": {
             "conventional-deadlifts": {
-                "max-onerm-pct": 0.85,
+                "max-onerm-pct": 0.8,
                 "min-reps": 4,
                 "max-reps": 6
             }
