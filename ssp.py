@@ -1,15 +1,27 @@
 """
 Create strength program
 
+Requires:
+* user profile configured within `profiles/<user>/lifts.yaml`
+
 Returns: outputs/<user>/strength_program-<yyyy-mm>.csv
+
+Usage:
+    ssp.py [-u] [-v]
+
+Options:
+    -u --user           User profile to use [default: default]
+    -v --verbose        Verbose logging
+    -h --help           Show this screen
 """
 import numpy as np
 import yaml
+from docopt import docopt
 import pandas as pd
 import itertools
 from typing import List, Optional
 from dataclasses import dataclass
-
+from rich.prompt import Prompt
 import logging
 
 # configs
@@ -158,18 +170,39 @@ def has_weekly_difference(training_range):
 
 
 if __name__ == "__main__":
+    arguments = docopt(__doc__, version="simple-strength-program v1.0")
+
+    # gather inputs
+    MICROPLATES = False
+
+    if arguments["--user"]:
+        # ask for user profile
+        user_profile = Prompt.ask("Enter user profile name", default="default")
+        user_profile = user_profile.lower()
+        user_profile = user_profile.replace(" ", "-")
+    else:
+        user_profile = "default"
+
     LOGGER.info("Reading source data and configs")
     defined_rpes = yaml.load(open("source/rpe.yaml", "r"), Loader=yaml.FullLoader)
     exercises = yaml.load(open("config/exercise.json", "r"), Loader=yaml.FullLoader)
     accessory_rpe_schema = defined_rpes.get("accessory").get("backoff")
 
     LOGGER.info("Reading user inputs")
-    user_lifts = yaml.load(open("config/user_lifts.yaml", "r"), Loader=yaml.FullLoader)
-    user_gym = yaml.load(open("config/user_gym.yaml", "r"), Loader=yaml.FullLoader)
+    user_lifts = yaml.load(
+        open(f"profiles/{user_profile}/lifts.yaml", "r"), Loader=yaml.FullLoader
+    )
+    try:
+        user_gym = yaml.load(
+            open(f"profiles/{user_profile}gym.yaml", "r"), Loader=yaml.FullLoader
+        )
+    except FileNotFoundError:
+        user_gym = False
+
+    MICROPLATES = user_gym.get("microplates") if user_gym else False
 
     # Global variables
     DF_RPE = pd.read_csv("source/rpe-calculator.csv").set_index("RPE")
-    MICROPLATES = user_gym.get("microplates", False)
 
     max_lifts = []
     full_program = []
