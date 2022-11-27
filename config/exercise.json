@@ -16,6 +16,16 @@
                 "min-reps": 4,
                 "max-reps": 12
             },
+            "incline-dumbbell-press": {
+                "max-onerm-pct": 0.8,
+                "min-reps": 8,
+                "max-reps": 15
+            },
+            "close-grip-bench-press": {
+                "max-onerm-pct": 0.7,
+                "min-reps": 5,
+                "max-reps": 8
+            },
             "delt-raises": {
                 "max-onerm-pct": 0.2,
                 "min-reps": 12,
