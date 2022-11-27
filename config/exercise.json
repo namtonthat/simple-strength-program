@@ -1,132 +1,153 @@
 {
-    "accessory_lifts": {
+    "accessory-lifts": {
         "bench": {
-            "Paused Bench": {
-                "max": 0.7,
-                "reps": [3, 6]
+            "paused-bench": {
+                "max-onerm-pct": 0.8,
+                "min-reps": 3,
+                "max-reps": 6
             },
-            "3 Count Paused Bench": {
-                "max": 0.65,
-                "reps": [3, 6]
+            "3-count-paused-bench": {
+                "max-onerm-pct": 0.7,
+                "min-reps": 3,
+                "max-reps": 6
             },
-            "Incline Bench Press": {
-                "max": 0.85,
-                "reps": [4, 8]
+            "incline-bench-press": {
+                "max-onerm-pct": 0.8,
+                "min-reps": 4,
+                "max-reps": 12
+            },
+            "delt-raises": {
+                "max-onerm-pct": 0.2,
+                "min-reps": 12,
+                "max-reps": 20
+            },
+            "face-pulls": {
+                "max-onerm-pct": 0.35,
+                "min-reps": 12,
+                "max-reps": 20
+            },
+            "tricep-pushdowns": {
+                "max-onerm-pct": 0.35,
+                "min-reps": 12,
+                "max-reps": 20
+            },
+            "chest-fly": {
+                "max-onerm-pct": 0.4,
+                "min-reps": 12
             }
         },
         "squat": {
-            "Romanian Deadlifts": {
-                "max": 0.85,
-                "reps": [6, 10]
+            "romanian-deadlift": {
+                "max-onerm-pct": 0.9,
+                "min-reps": 6,
+                "max-reps": 10
             },
-            "Safety Squat Bar": {
-                "max": 0.85,
-                "reps": [3, 6]
+            "safety-squat-bar": {
+                "max-onerm-pct": 0.85,
+                "min-reps": 3,
+                "max-reps": 6
             },
-            "Pendulum Squat": {
-                "max": 0.8,
-                "reps": [8, 15]
+            "pendulum-squat": {
+                "max-onerm-pct": 0.5,
+                "min-reps": 8,
+                "max-reps": 15
+            },
+            "paused-squat": {
+                "max-onerm-pct": 0.8,
+                "min-reps": 3,
+                "max-reps": 6
+            },
+            "bulgarian-split-squat": {
+                "max-onerm-pct": 0.3,
+                "min-reps": 12,
+                "max-reps": 20
             }
         },
         "deadlift": {
-            "Conventional Deadlifts": {
-                "max": 0.85,
-                "reps": [4, 6]
-            }
-        },
-        "overhead-press": {
-            "Delt Raises": {
-                "max": 0.2,
-                "reps": [12, 20]
+            "conventional-deadlift": {
+                "max-onerm-pct": 0.8,
+                "min-reps": 3,
+                "max-reps": 6
+            },
+            "paused-deadlift": {
+                "max-onerm-pct": 0.75,
+                "min-reps": 3,
+                "max-reps": 6
             }
         }
     },
-    "accessories": {
-        "bench": [
-            "Tricep Extensions",
-            "Overhead Press"
-        ],
-        "squat": [
-            "Paused Squat",
-            "3 Count Paused squat"
-        ],
-        "deadlift": [
-            "Paused Deadlift",
-            "Meadow Rows"
-        ]
-    },
-    "exercise_pref":
-    {
-    "strength-1": {
-        "top_sets": 1,
-        "top_reps": 1,
-        "backoff_sets": 3,
-        "backoff_reps": 3
-    },
-    "strength-2": {
-        "top_sets": 2,
-        "top_reps": 2,
-        "backoff_sets": 4,
-        "backoff_reps": 4
-    },
-    "strength-3": {
-        "top_sets": 1,
-        "top_reps": 3,
-        "backoff_sets": 3,
-        "backoff_reps": 5
-    },
-    "strength-4": {
-        "top_sets": 1,
-        "top_reps": 3,
-        "backoff_sets": 3,
-        "backoff_reps": 6
-    },
-    "strength-5": {
-        "top_sets": 1,
-        "top_reps": 4,
-        "backoff_sets": 2,
-        "backoff_reps": 6
-    },
-    "strength-6": {
-        "top_sets": 1,
-        "top_reps": 5,
-        "backoff_sets": 3,
-        "backoff_reps": 6
-    },
-    "strength-basic": {
-        "top_sets": 0,
-        "top_reps": 0,
-        "backoff_sets": 5,
-        "backoff_reps": 5
-    },
-    "volume-basic": {
-        "backoff_sets": 3,
-        "backoff_reps": 6
-    },
-    "volume-1": {
-        "backoff_sets": 3,
-        "backoff_reps": 8
-    },
-    "volume-2": {
-        "backoff_sets": 4,
-        "backoff_reps": 8
-    },
-    "volume-3": {
-        "backoff_sets": 4,
-        "backoff_reps": 8
-    }
-    },
-    "rpe_pref":
-    {
-        "strength": {
-            "top_sets": [6.5, 7.5, 8, 8.5, 9.5],
-            "backoff_sets": [5, 6, 7, 7.5, 8]
+    "program-goals": {
+        "strength-1": {
+            "top-sets": 1,
+            "top-reps": 1,
+            "backoff-sets": 3,
+            "backoff-reps": 3
         },
-        "volume": {
-            "backoff_sets": [6, 7.5, 8, 8.5, 9.0]
+        "strength-2": {
+            "top-sets": 2,
+            "top-reps": 2,
+            "backoff-sets": 4,
+            "backoff-reps": 4
         },
-        "accessory_lifts": {
-            "backoff_sets": [7, 7.5, 8, 8.5, 9]
+        "strength-3": {
+            "top-sets": 1,
+            "top-reps": 3,
+            "backoff-sets": 3,
+            "backoff-reps": 5
+        },
+        "strength-4": {
+            "top-sets": 1,
+            "top-reps": 3,
+            "backoff-sets": 3,
+            "backoff-reps": 6
+        },
+        "strength-5": {
+            "top-sets": 1,
+            "top-reps": 4,
+            "backoff-sets": 2,
+            "backoff-reps": 6
+        },
+        "strength-6": {
+            "top-sets": 1,
+            "top-reps": 5,
+            "backoff-sets": 3,
+            "backoff-reps": 6
+        },
+        "strength-basic": {
+            "top-sets": 0,
+            "top-reps": 0,
+            "backoff-sets": 5,
+            "backoff-reps": 5
+        },
+        "volume-basic": {
+            "top-sets": 0,
+            "top-reps": 0,
+            "backoff-sets": 3,
+            "backoff-reps": 6
+        },
+        "volume-1": {
+            "top-sets": 0,
+            "top-reps": 0,
+            "backoff-sets": 3,
+            "backoff-reps": 6
+        },
+        "volume-2": {
+            "top-sets": 0,
+            "top-reps": 0,
+            "backoff-sets": 4,
+            "backoff-reps": 6
+        },
+        "volume-3": {
+            "top-sets": 0,
+            "top-reps": 0,
+            "backoff-sets": 4,
+            "backoff-reps": 7
+        },
+        "volume-4": {
+            "top-sets": 0,
+            "top-reps": 0,
+            "backoff-sets": 3,
+            "backoff-reps": 8
         }
     }
 }

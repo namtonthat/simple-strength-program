@@ -2,8 +2,14 @@ A simple Python script to automate the creation of a powerlifting 5 week mesocyc
 
 ## 🏁 Getting Started
 1. Clone repo into local directory and navigate to repo.
-2. Install packages required by `requirements.txt`.
-3. Update `user.json` to reflect your current status (see `NOTE` below).
+2. Install packages required by using
+```
+pyenv install 3.8.13
+pyenv local 3.8.13
+poetry shell
+poetry install
+```
+3. Update `lifts.yaml` within (`profiles/default`) to reflect your current status (see `NOTE` below).
 4. Run `python3 ssp.py` to output your next 5 weeks of training.
 
 **NOTE**:
@@ -11,11 +17,21 @@ A simple Python script to automate the creation of a powerlifting 5 week mesocyc
 - You can set different goals for each lift - if in doubt, there are also `basic` programs to help you get started with strength / volume building
 
 ### 👩‍💻 Basic Programming
+
+| Type                 | Day 1     | Day 2        | Day 3          |
+| -------------------- | --------- | ------------ | -------------- |
+| Compound             | Squat     | Bench        | Deadlift |
+| Compound (Accessory) | Bench     | Deadlift     | Bench          |
+| Compound (Assisted)  | Hamstring | Lats / Delts | Row   |
+| Accessory            | Quads     | Legs / Quads | Triceps + Biceps       |
+| Accessory            | Core      | Triceps      | Biceps + Core  |
+
+### Optional Accessory Day
 | Type                 | Day 1     | Day 2        | Day 3          | Day 4            |
 | -------------------- | --------- | ------------ | -------------- | ---------------- |
 | Compound             | Squat     | Bench        | Overhead Press | Deadlift         |
 | Compound (Accessory) | Bench     | Deadlift     | Squat          | Bench            |
-| Compound (Assisted)  | Hamstring | Lats / Delts | Lats / Delts   | Lats / Delts     |
+| Compound (Assisted)  | Hamstring | Lats / Delts | Lats / Delts   | Row     |
 | Accessory            | Quads     | Legs / Quads | Chest          | Triceps / Biceps |
 | Accessory            | Core      | Triceps      | Biceps + Core  | Triceps          |
 

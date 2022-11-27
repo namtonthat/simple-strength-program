@@ -1,0 +1,18 @@
+# requires each day to have the same number of exercises
+day-1:
+- squat
+- paused-bench
+- romanian-deadlift
+- bulgarian-split-squat
+- superman-ab-crunch
+day-2:
+- bench
+- paused-deadlift
+- face-pulls
+- tricep-pushdowns
+day-3:
+- deadlift
+- safety-squat-bar
+- chest-fly
+- incline-bench-press
+- bicep-curls
