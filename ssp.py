@@ -137,22 +137,27 @@ def round_weights(weight, deload=False):
 
     return pl_weight
 
+def get_one_rm_pct(reps, rpe):
+    "Get the percentage of 1RM for a given number of reps and RPE"
+    one_rm_pct = DF_RPE[f'{reps}'].to_dict().get(rpe)
+    return one_rm_pct
+
 
 def calculate_training_range(one_rm, reps, rpe_schema) -> List[float]:
     """
     Calculate the training day progression for a given 1RM
     """
-    df_ref = DF_RPE[f"{reps}"].to_dict()
-    week_weights = []
-    pct_one_rms = []
+    lowest_rpe = rpe_schema[0]
+    highest_rpe = rpe_schema[-1]
 
-    for rpe in rpe_schema:
-        pct_one_rm = df_ref.get(rpe)
-        week_weight = pct_one_rm * one_rm
-        pct_one_rms.append(pct_one_rm)
-        week_weights.append(week_weight)
+    w1_weight = round_weights(get_one_rm_pct(reps, lowest_rpe) * one_rm, deload=True)
+    w5_weight = get_one_rm_pct(reps, highest_rpe) * one_rm
+
+    week_weights = np.linspace(w1_weight, w5_weight, 5).tolist()
 
     training_range = [round_weights(i) for i in week_weights]
+
+    # check if there is minimum spacing between each week
 
     return training_range
 
