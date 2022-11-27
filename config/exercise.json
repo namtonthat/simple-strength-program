@@ -2,12 +2,12 @@
     "accessory-lifts": {
         "bench": {
             "paused-bench": {
-                "max-onerm-pct": 0.7,
+                "max-onerm-pct": 0.8,
                 "min-reps": 3,
                 "max-reps": 6
             },
             "3-count-paused-bench": {
-                "max-onerm-pct": 0.65,
+                "max-onerm-pct": 0.7,
                 "min-reps": 3,
                 "max-reps": 6
             },
@@ -15,33 +15,7 @@
                 "max-onerm-pct": 0.8,
                 "min-reps": 4,
                 "max-reps": 12
-            }
-        },
-        "squat": {
-            "romanian-deadlifts": {
-                "max-onerm-pct": 0.75,
-                "min-reps": 6,
-                "max-reps": 10
             },
-            "safety-squat-bar": {
-                "max-onerm-pct": 0.75,
-                "min-reps": 3,
-                "max-reps": 6
-            },
-            "pendulum-squat": {
-                "max-onerm-pct": 0.5,
-                "min-reps": 8,
-                "max-reps": 15
-            }
-        },
-        "deadlift": {
-            "conventional-deadlifts": {
-                "max-onerm-pct": 0.8,
-                "min-reps": 4,
-                "max-reps": 6
-            }
-        },
-        "overhead-press": {
             "delt-raises": {
                 "max-onerm-pct": 0.2,
                 "min-reps": 12,
@@ -51,23 +25,47 @@
                 "max-onerm-pct": 0.35,
                 "min-reps": 12,
                 "max-reps": 20
+            },
+            "tricep-pushdowns": {
+                "max-onerm-pct": 0.35,
+                "min-reps": 12,
+                "max-reps": 20
+            }
+        },
+        "squat": {
+            "romanian-deadlift": {
+                "max-onerm-pct": 0.9,
+                "min-reps": 6,
+                "max-reps": 10
+            },
+            "safety-squat-bar": {
+                "max-onerm-pct": 0.85,
+                "min-reps": 3,
+                "max-reps": 6
+            },
+            "pendulum-squat": {
+                "max-onerm-pct": 0.5,
+                "min-reps": 8,
+                "max-reps": 15
+            },
+            "paused-squat": {
+                "max-onerm-pct": 0.8,
+                "min-reps": 3,
+                "max-reps": 6
+            }
+        },
+        "deadlift": {
+            "conventional-deadlift": {
+                "max-onerm-pct": 0.8,
+                "min-reps": 3,
+                "max-reps": 6
+            },
+            "paused-deadlift": {
+                "max-onerm-pct": 0.75,
+                "min-reps": 3,
+                "max-reps": 6
             }
         }
-    },
-    "accessories": {
-        "bench": [
-            "tricep-extensions",
-            "overhead-press",
-            "chest-dips"
-        ],
-        "squat": [
-            "paused-squat",
-            "3-count-paused-squat"
-        ],
-        "deadlift": [
-            "paused-deadlift",
-            "meadow-rows"
-        ]
     },
     "program-goals": {
         "strength-1": {

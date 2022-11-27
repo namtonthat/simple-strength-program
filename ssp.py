@@ -11,11 +11,12 @@ Usage:
 
 Options:
     -u --user           User profile to use [default: default]
-    -st --start-date    Start date of the program [default: today]
     -v --verbose        Verbose logging
     -h --help           Show this screen
 """
 import numpy as np
+import math
+import os
 import yaml
 from docopt import docopt
 import pandas as pd
@@ -39,7 +40,6 @@ class LiftWeight:
 
     weight: float
     reps: int
-    pct_one_rm: float
 
 
 @dataclass
@@ -49,36 +49,27 @@ class OneRepMax:
     lift: str
     weight: float
 
-    def __post_init__(self):
-        """Clean the names / related compound names"""
-        exercise_name = self.lift.replace("-", " ").title()
-        self.lift = exercise_name
-
     @property
     def output_table(self) -> str:
         """Return a table of the one rep max"""
-        output = [self.lift, self.weight]
+        output = [self.lift.title(), self.weight]
         return output
 
 
 @dataclass
 class Exercise:
     """A generic class for an exercise"""
-
     backoff_sets: List[LiftWeight]
     name: str
-    predicted_one_rm: float
+    predicted_one_rm: float = None
     related_compound: str = None
     top_sets: Optional[List[LiftWeight]] = None
 
-    def __post_init__(self):
+    @property
+    def pretty_name(self) -> str:
         """Clean the names / related compound names"""
-        exercise_name = self.name.replace("-", " ").title()
-        self.name = exercise_name
-
-        if self.related_compound:
-            related_compound_name = self.related_compound.replace("-", " ").title()
-            self.related_compound = related_compound_name
+        exercise_name = self.name.replace('-', ' ').title()
+        return exercise_name
 
     @property
     def weekly_sets(self) -> List[LiftWeight]:
@@ -90,51 +81,14 @@ class Exercise:
             return weekly_sets
         else:
             return self.backoff_sets
-
-    @property
-    def output_name(self) -> str:
-        """
-        Return the name of the exercise for the output
-        """
-        if self.related_compound:
-            return f"{self.name} ({self.related_compound})"
-        else:
-            return self.name
-
-    # @property
-    # def output_print(self) -> str:
-    #     """
-    #     Return the string to output to the user
-    #     """
-
-    #     outputs = [
-    #         f"\n{self.output_name}\n"
-    #         f"Training Max: {self.predicted_one_rm} kg"]
-    #     if self.top_sets:
-    #         for week, (top, backoff) in enumerate(self.weekly_sets, 1):
-    #             week_date = WEEK_DATES.get(week)
-    #             output = f"Week {week} ({week_date})\n"+\
-    #             f"{top.weight} kg x {top.reps}\n"+\
-    #             f"{backoff.weight} kg x {backoff.reps}"
-    #             outputs.append(output)
-    #     else:
-    #         for week, weight in enumerate(self.weekly_sets, 1):
-    #             week_date = WEEK_DATES.get(week)
-    #             output = f"Week {week} ({week_date})\n"+\
-    #             f"{weight.weight} kg x {weight.reps}"
-    #             outputs.append(output)
-    #     return '\n\n'.join(outputs)
-
     @property
     def output_table(self) -> List:
         "Creates table output for prettytable package"
-        outputs = [f"{self.output_name}"]
+        outputs = [f"**{self.pretty_name}**"]
         if self.top_sets:
             for _, (top, backoff) in enumerate(self.weekly_sets, 1):
-                output = (
-                    f"{top.weight} kg x {top.reps}\n"
-                    + f"{backoff.weight} kg x {backoff.reps}"
-                )
+                output = f"{top.weight} kg x {top.reps}\n"+\
+                f"{backoff.weight} kg x {backoff.reps}"
                 outputs.append(output)
         else:
             for _, weight in enumerate(self.weekly_sets, 1):
@@ -170,15 +124,14 @@ def calculate_1rm(reps, rpe, weight):
     one_rm = int(np.round(np.floor(weight / one_rm_pct), 0))
     return one_rm
 
-
-def round_weights(weight):
+def round_weights(weight, deload=False):
     """
     Round the weights to the nearest 2.5 kg (or kg if microplates available)
     """
-    if MICROPLATES:
-        pl_weight = int(np.floor(weight))
+    if deload:
+        pl_weight = MIN_PLATE_WEIGHT * math.floor(weight / MIN_PLATE_WEIGHT)
     else:
-        pl_weight = round(np.ceil(weight / 2.5)) * 2.5
+        pl_weight = MIN_PLATE_WEIGHT * math.ceil(weight / MIN_PLATE_WEIGHT)
 
     return pl_weight
 
@@ -205,13 +158,6 @@ def calculate_training_range(one_rm, reps, rpe_schema) -> List[float]:
 def create_training_range(one_rm, reps, rpe_schema) -> List[LiftWeight]:
     """Create a list of LiftWeight objects for the training range"""
     training_range = calculate_training_range(one_rm, reps, rpe_schema)
-    # iterate through training range to make sure there is enough spacing between the numbers
-    if has_weekly_difference(training_range):
-        LOGGER.info("Weekly difference is too small, recalculating")
-        lowest_rpe = rpe_schema[0] - 0.5
-        highest_rpe = rpe_schema[-1] + 0.5
-        updated_rpe_schema = [lowest_rpe] + rpe_schema[1:4] + [highest_rpe]
-        training_range = calculate_training_range(one_rm, reps, updated_rpe_schema)
 
     weights_lifted = list(zip(training_range, itertools.repeat(reps)))
     weights_lifted = [LiftWeight(*i) for i in weights_lifted]
@@ -219,13 +165,11 @@ def create_training_range(one_rm, reps, rpe_schema) -> List[LiftWeight]:
     return weights_lifted
 
 
-def has_weekly_difference(training_range):
-    "Checks if the weekly progression is less than 2.5 kg"
-    weekly_difference = np.diff(training_range).tolist()
-    for weekly_diff in weekly_difference:
-        if weekly_diff <= 2.5:
-            return False
-    return True
+def column_pad(*columns):
+    """Pad the columns to the same length"""
+    max_len = max([len(c) for c in columns])
+    for c in columns:
+        c.extend(['']*(max_len-len(c)))
 
 
 if __name__ == "__main__":
@@ -241,15 +185,12 @@ if __name__ == "__main__":
     else:
         user_profile = "default"
 
-    if arguments["--start-date"]:
-        start_date = Prompt.ask(
-            "Enter start date e.g. 2022-11-26 (otherwise defaults to today)",
-            default=datetime.now(),
-        )
+    start_date = datetime.now()
 
     LOGGER.info("Reading source data and configs")
     defined_rpes = yaml.load(open("source/rpe.yaml", "r"), Loader=yaml.FullLoader)
     exercises = yaml.load(open("config/exercise.json", "r"), Loader=yaml.FullLoader)
+    program_layout = yaml.load(open("config/program-layout.yaml", "r"), Loader=yaml.FullLoader)
     accessory_rpe_schema = defined_rpes.get("accessory").get("backoff")
 
     LOGGER.info("Reading user inputs")
@@ -263,18 +204,18 @@ if __name__ == "__main__":
     except FileNotFoundError:
         user_gym = False
 
+
     # Global variables
     DF_RPE = pd.read_csv("source/rpe-calculator.csv").set_index("RPE")
     MICROPLATES = user_gym.get("microplates") if user_gym else False
-    WEEK_DATES = create_weekly_dates(start_date)
+    MIN_PLATE_WEIGHT = 1 if MICROPLATES else 2.5
 
     max_lifts = []
     full_program = []
-    accessory_program = []
 
-    for compound_lift, stats in user_lifts.items():
+    for compound_lift_name, stats in user_lifts.items():
         # clear previous stats
-        LOGGER.info("Creating program for %s", compound_lift)
+        LOGGER.info("Creating program for %s", compound_lift_name)
         top_training_range = []
         backoff_training_range = []
 
@@ -282,7 +223,7 @@ if __name__ == "__main__":
             reps=stats.get("reps"), rpe=stats.get("rpe"), weight=stats.get("weight")
         )
 
-        max_strength = OneRepMax(lift=compound_lift, weight=lift_one_rep_max)
+        max_strength = OneRepMax(lift=compound_lift_name, weight=lift_one_rep_max)
 
         goal = stats.get("program-goal")
         program_type = goal.split("-")[0]
@@ -291,71 +232,103 @@ if __name__ == "__main__":
 
         if program_type == "strength":
             top_training_range = create_training_range(
-                lift_one_rep_max,
-                reps=exercise_volume.get("top-reps"),
-                rpe_schema=rpes.get("top"),
-            )
+                    one_rm=lift_one_rep_max,
+                    reps=exercise_volume.get("top-reps"),
+                    rpe_schema=rpes.get("top"),
+                )
+
 
         backoff_training_range = create_training_range(
-            lift_one_rep_max,
+            one_rm=lift_one_rep_max,
             reps=exercise_volume.get("backoff-reps"),
             rpe_schema=rpes.get("backoff"),
         )
 
-        compound = Exercise(
+        compound_lift = Exercise(
             backoff_sets=backoff_training_range,
-            name=compound_lift,
+            name=compound_lift_name,
             predicted_one_rm=lift_one_rep_max,
             top_sets=top_training_range,
         )
 
-        full_program.append(compound)
+        full_program.append(compound_lift)
 
-        accessories = exercises.get("accessory-lifts").get(f"{compound_lift}")
+        accessories = exercises.get("accessory-lifts").get(f"{compound_lift_name}")
         for accessory, stats in accessories.items():
             accessory_one_rm = round_weights(
                 lift_one_rep_max * stats.get("max-onerm-pct")
             )
             min_reps = stats.get("min-reps")
-            max_reps = stats.get("max-reps")
 
-            low_volume = create_training_range(
+            accessory_training_range = create_training_range(
                 one_rm=accessory_one_rm, reps=min_reps, rpe_schema=accessory_rpe_schema
             )
 
-            high_volume = create_training_range(
-                one_rm=lift_one_rep_max, reps=max_reps, rpe_schema=accessory_rpe_schema
-            )
-
-            low_volume_exercise = Exercise(
-                backoff_sets=low_volume,
+            accessory_lift = Exercise(
+                backoff_sets=accessory_training_range,
                 name=accessory,
                 predicted_one_rm=accessory_one_rm,
                 related_compound=compound_lift,
             )
 
-            high_volume_exercise = Exercise(
-                backoff_sets=high_volume,
-                name=accessory,
-                predicted_one_rm=lift_one_rep_max,
-                related_compound=compound_lift,
-            )
+            full_program.append(accessory_lift)
 
-            accessory_program.append(low_volume_exercise)
-            accessory_program.append(high_volume_exercise)
+        max_lifts.append(max_strength)
 
-    LOGGER.info("Writing program to file")
+    # create the program
+    LOGGER.info("Creating list of available exercises to output")
+    all_exercises = {}
+    for exercise in full_program:
+        all_exercises[exercise.name] = exercise
 
-    max_strength.output_table
-    main_lifts = PrettyTable()
 
-    # update the week_dates fields
-    WEEK_DATES.insert(0, "Week Starting")
-    main_lifts.add_column("", WEEK_DATES)
+    user_stats = PrettyTable()
+    user_stats.field_names = ['Lift', 'Training Max']
+    for lift in max_lifts:
+        max_tm_row = lift.output_table
+        user_stats.add_row(max_tm_row)
 
-    for day_no, exercise in enumerate(full_program, 1):
-        exercise_col = exercise.output_table
-        main_lifts.add_column(f"Day {day_no}", exercise_col)
+    day_cols = []
+    for _, exercises in program_layout.items():
+        day_col = []
+        for exercise_name in exercises:
+            planned_exercise = all_exercises.get(exercise_name)
+            if planned_exercise:
+                exercise_col = planned_exercise.output_table
+            else:
+                generic_exericse=Exercise(
+                    backoff_sets= [LiftWeight(0, 12)] * 5,
+                    name=exercise_name,
+                )
+                exercise_col = generic_exericse.output_table
+            day_col.append(exercise_col)
+        flatten_day_col = [item for sublist in day_col for item in sublist]
 
-        # print(exercise.output_print)
-    # output training program
+        day_cols.append(flatten_day_col)
+
+        column_pad(*day_cols)
+
+    program = PrettyTable()
+
+    # create weekly dates
+    week_dates=create_weekly_dates(start_date)
+    week_dates.insert(0, "Week Starting")
+    five_week_dates= week_dates * 5
+    program.add_column("", five_week_dates)
+
+    for day, col in enumerate(day_cols, 1):
+        program.add_column(f"Day {day}", col)
+
+    LOGGER.info('Writing to file')
+    program_date = start_date.strftime("%Y-%m")
+    output_path = f"output/{user_profile}"
+    program_file = f"program-{program_date}.csv"
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    with open(f"{output_path}/{program_file}", "w+") as f:
+        f.write(user_stats.get_csv_string())
+        f.write('\n')
+
+        f.write(program.get_csv_string())

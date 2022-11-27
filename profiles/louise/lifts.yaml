@@ -13,8 +13,3 @@ deadlift:
   reps: 6
   rpe: 9.5
   program-goal: volume-3
-overhead-press:
-  weight: 10
-  reps: 6
-  rpe: 9.0
-  program-goal: volume-3
