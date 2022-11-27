@@ -84,7 +84,7 @@ class Exercise:
     @property
     def output_table(self) -> List:
         "Creates table output for prettytable package"
-        outputs = [f"**{self.pretty_name}**"]
+        outputs = [f"{self.pretty_name}"]
         if self.top_sets:
             for _, (top, backoff) in enumerate(self.weekly_sets, 1):
                 output = f"{top.weight} kg x {top.reps}\n"+\
@@ -95,6 +95,8 @@ class Exercise:
                 output = f"{weight.weight} kg x {weight.reps}"
                 outputs.append(output)
 
+        # add empty row for formatting
+        outputs.append('')
         return outputs
 
 
@@ -175,8 +177,10 @@ def column_pad(*columns):
 if __name__ == "__main__":
     arguments = docopt(__doc__, version="simple-strength-program v1.0")
 
-    # gather inputs
+    # intiates variables
     MICROPLATES = False
+    start_date = datetime.now()
+
     if arguments["--user"]:
         # ask for user profile
         user_profile = Prompt.ask("Enter user profile name", default="default")
@@ -184,8 +188,6 @@ if __name__ == "__main__":
         user_profile = user_profile.replace(" ", "-")
     else:
         user_profile = "default"
-
-    start_date = datetime.now()
 
     LOGGER.info("Reading source data and configs")
     defined_rpes = yaml.load(open("source/rpe.yaml", "r"), Loader=yaml.FullLoader)
@@ -289,6 +291,7 @@ if __name__ == "__main__":
         user_stats.add_row(max_tm_row)
 
     day_cols = []
+    daily_exercise_count = []
     for _, exercises in program_layout.items():
         day_col = []
         for exercise_name in exercises:
@@ -306,18 +309,28 @@ if __name__ == "__main__":
 
         day_cols.append(flatten_day_col)
 
-        column_pad(*day_cols)
-
+    column_pad(*day_cols)
     program = PrettyTable()
 
     # create weekly dates
     week_dates=create_weekly_dates(start_date)
     week_dates.insert(0, "Week Starting")
-    five_week_dates= week_dates * 5
-    program.add_column("", five_week_dates)
+    week_dates.append('')
+
+    # find the maximum number of exercises for a given day
+    max_daily_exercises = len(max(list(program_layout.values()), key=len))
+    program_dates = week_dates * max_daily_exercises
+    program.add_column("", program_dates)
+
+    # add actual load columns for user input
+    actual_load_col = ['Actual Load'] + [''] * 6
+    actual_load_cols = actual_load_col * max_daily_exercises
+    empty_cols = [''] * 7 * max_daily_exercises
 
     for day, col in enumerate(day_cols, 1):
         program.add_column(f"Day {day}", col)
+        program.add_column('', actual_load_cols)
+        program.add_column('', empty_cols)
 
     LOGGER.info('Writing to file')
     program_date = start_date.strftime("%Y-%m")

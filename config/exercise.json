@@ -30,6 +30,10 @@
                 "max-onerm-pct": 0.35,
                 "min-reps": 12,
                 "max-reps": 20
+            },
+            "chest-fly": {
+                "max-onerm-pct": 0.4,
+                "min-reps": 12
             }
         },
         "squat": {
@@ -52,6 +56,11 @@
                 "max-onerm-pct": 0.8,
                 "min-reps": 3,
                 "max-reps": 6
+            },
+            "bulgarian-split-squat": {
+                "max-onerm-pct": 0.3,
+                "min-reps": 12,
+                "max-reps": 20
             }
         },
         "deadlift": {
@@ -120,18 +129,24 @@
             "top-sets": 0,
             "top-reps": 0,
             "backoff-sets": 3,
-            "backoff-reps": 8
+            "backoff-reps": 6
         },
         "volume-2": {
             "top-sets": 0,
             "top-reps": 0,
             "backoff-sets": 4,
-            "backoff-reps": 8
+            "backoff-reps": 6
         },
         "volume-3": {
             "top-sets": 0,
             "top-reps": 0,
             "backoff-sets": 4,
+            "backoff-reps": 7
+        },
+        "volume-4": {
+            "top-sets": 0,
+            "top-reps": 0,
+            "backoff-sets": 3,
             "backoff-reps": 8
         }
     }
