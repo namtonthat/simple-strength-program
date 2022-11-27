@@ -1,2 +1,2 @@
-!output/default
-!profiles/default
+output
+!output/default/*.*
