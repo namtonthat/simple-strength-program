@@ -6,7 +6,7 @@ authors = ["Nam Tonthat <n.nam.tonthat@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "3.11"
 pandas = "^1.5.1"
 numpy = "^1.23.5"
 PyYAML = "^6.0"
