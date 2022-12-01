@@ -59,6 +59,7 @@ class OneRepMax:
 @dataclass
 class Exercise:
     """A generic class for an exercise"""
+
     backoff_sets: List[LiftWeight]
     name: str
     predicted_one_rm: float = None
@@ -68,7 +69,7 @@ class Exercise:
     @property
     def pretty_name(self) -> str:
         """Clean the names / related compound names"""
-        exercise_name = self.name.replace('-', ' ').title()
+        exercise_name = self.name.replace("-", " ").title()
         return exercise_name
 
     @property
@@ -81,14 +82,17 @@ class Exercise:
             return weekly_sets
         else:
             return self.backoff_sets
+
     @property
     def output_table(self) -> List:
         "Creates table output for prettytable package"
         outputs = [f"{self.pretty_name}"]
         if self.top_sets:
             for _, (top, backoff) in enumerate(self.weekly_sets, 1):
-                output = f"{top.weight} kg x {top.reps}\n"+\
-                f"{backoff.weight} kg x {backoff.reps}"
+                output = (
+                    f"{top.weight} kg x {top.reps}\n"
+                    + f"{backoff.weight} kg x {backoff.reps}"
+                )
                 outputs.append(output)
         else:
             for _, weight in enumerate(self.weekly_sets, 1):
@@ -96,7 +100,7 @@ class Exercise:
                 outputs.append(output)
 
         # add empty row for formatting
-        outputs.append('')
+        outputs.append("")
         return outputs
 
 
@@ -126,6 +130,7 @@ def calculate_1rm(reps, rpe, weight):
     one_rm = int(np.round(np.floor(weight / one_rm_pct), 0))
     return one_rm
 
+
 def round_weights(weight, deload=False):
     """
     Round the weights to the nearest 2.5 kg (or kg if microplates available)
@@ -137,9 +142,10 @@ def round_weights(weight, deload=False):
 
     return pl_weight
 
+
 def get_one_rm_pct(reps, rpe):
     "Get the percentage of 1RM for a given number of reps and RPE"
-    one_rm_pct = DF_RPE[f'{reps}'].to_dict().get(rpe)
+    one_rm_pct = DF_RPE[f"{reps}"].to_dict().get(rpe)
     return one_rm_pct
 
 
@@ -176,7 +182,7 @@ def column_pad(*columns):
     """Pad the columns to the same length"""
     max_len = max([len(c) for c in columns])
     for c in columns:
-        c.extend(['']*(max_len-len(c)))
+        c.extend([""] * (max_len - len(c)))
 
 
 if __name__ == "__main__":
@@ -197,7 +203,9 @@ if __name__ == "__main__":
     LOGGER.info("Reading source data and configs")
     defined_rpes = yaml.load(open("source/rpe.yaml", "r"), Loader=yaml.FullLoader)
     exercises = yaml.load(open("config/exercise.json", "r"), Loader=yaml.FullLoader)
-    program_layout = yaml.load(open("config/program-layout.yaml", "r"), Loader=yaml.FullLoader)
+    program_layout = yaml.load(
+        open("config/program-layout.yaml", "r"), Loader=yaml.FullLoader
+    )
     accessory_rpe_schema = defined_rpes.get("accessory").get("backoff")
 
     LOGGER.info("Reading user inputs")
@@ -210,7 +218,6 @@ if __name__ == "__main__":
         )
     except FileNotFoundError:
         user_gym = False
-
 
     # Global variables
     DF_RPE = pd.read_csv("source/rpe-calculator.csv").set_index("RPE")
@@ -239,11 +246,10 @@ if __name__ == "__main__":
 
         if program_type == "strength":
             top_training_range = create_training_range(
-                    one_rm=lift_one_rep_max,
-                    reps=exercise_volume.get("top-reps"),
-                    rpe_schema=rpes.get("top"),
-                )
-
+                one_rm=lift_one_rep_max,
+                reps=exercise_volume.get("top-reps"),
+                rpe_schema=rpes.get("top"),
+            )
 
         backoff_training_range = create_training_range(
             one_rm=lift_one_rep_max,
@@ -288,9 +294,8 @@ if __name__ == "__main__":
     for exercise in full_program:
         all_exercises[exercise.name] = exercise
 
-
     user_stats = PrettyTable()
-    user_stats.field_names = ['Lift', 'Training Max']
+    user_stats.field_names = ["Lift", "Training Max"]
     for lift in max_lifts:
         max_tm_row = lift.output_table
         user_stats.add_row(max_tm_row)
@@ -304,8 +309,8 @@ if __name__ == "__main__":
             if planned_exercise:
                 exercise_col = planned_exercise.output_table
             else:
-                generic_exericse=Exercise(
-                    backoff_sets= [LiftWeight(0, 12)] * 5,
+                generic_exericse = Exercise(
+                    backoff_sets=[LiftWeight(0, 12)] * 5,
                     name=exercise_name,
                 )
                 exercise_col = generic_exericse.output_table
@@ -318,9 +323,9 @@ if __name__ == "__main__":
     program = PrettyTable()
 
     # create weekly dates
-    week_dates=create_weekly_dates(start_date)
+    week_dates = create_weekly_dates(start_date)
     week_dates.insert(0, "Week Starting")
-    week_dates.append('')
+    week_dates.append("")
 
     # find the maximum number of exercises for a given day
     max_daily_exercises = len(max(list(program_layout.values()), key=len))
@@ -328,25 +333,26 @@ if __name__ == "__main__":
     program.add_column("", program_dates)
 
     # add actual load columns for user input
-    actual_load_col = ['Actual Load'] + [''] * 6
+    actual_load_col = ["Actual Load"] + [""] * 6
     actual_load_cols = actual_load_col * max_daily_exercises
-    empty_cols = [''] * 7 * max_daily_exercises
+    empty_cols = [""] * 7 * max_daily_exercises
 
     for day, col in enumerate(day_cols, 1):
         program.add_column(f"Day {day}", col)
-        program.add_column('', actual_load_cols)
-        program.add_column('', empty_cols)
+        program.add_column("", actual_load_cols)
+        program.add_column("", empty_cols)
 
-    LOGGER.info('Writing to file')
+    LOGGER.info("Writing to file")
     program_date = start_date.strftime("%Y-%m")
     output_path = f"output/{user_profile}"
     program_file = f"program-{program_date}.csv"
 
+    # TODO: convert get_csv_string to HTML
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
     with open(f"{output_path}/{program_file}", "w+") as f:
         f.write(user_stats.get_csv_string())
-        f.write('\n')
+        f.write("\n")
 
         f.write(program.get_csv_string())
