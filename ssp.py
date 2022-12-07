@@ -42,6 +42,13 @@ class LiftWeight:
     sets: int
     reps: int
 
+    @property
+    def print_as_tuple(self) -> tuple:
+        """
+        Return a tuple for the lift
+        """
+        return (f"{self.sets} x {self.reps}", f"{self.weight}")
+
 
 @dataclass
 class OneRepMax:
@@ -52,7 +59,7 @@ class OneRepMax:
 
     @property
     def output_table(self) -> str:
-        """Return a table of the one rep max"""
+        "Creates table output for prettytable package"
         output = [self.lift.title(), self.weight]
         return output
 
@@ -85,26 +92,41 @@ class Exercise:
             return self.backoff_sets
 
     @property
-    def output_table(self) -> List:
-        "Creates table output for prettytable package"
-        outputs = [f"{self.pretty_name}"]
+    def make_weekly_sets(self) -> List[tuple]:
+        """Create weekly sets and reps for output table"""
+        weekly = []
         if self.top_sets:
             for _, (top, backoff) in enumerate(self.weekly_sets, 1):
-                output = (
-                    f"{top.sets} x {top.reps}\n"
-                    + f"{backoff.sets} x {backoff.reps} | "
-                    + f"{top.weight} kg\n"
-                )
-                output = (
-                    f"{top.weight} kg x {top.reps}\n"
-                    + f"{backoff.weight} kg x {backoff.reps}"
-                )
-                outputs.append(output)
+                top_sets = top.print_as_tuple
+                backoff_sets = backoff.print_as_tuple
+                weekly.extend([top_sets, backoff_sets])
         else:
-            for _, weight in enumerate(self.weekly_sets, 1):
-                output = f"{weight.sets} x {weight.reps} | " + f"{weight.weight} kg"
-                outputs.append(output)
+            for _, backoff in enumerate(self.weekly_sets, 1):
+                backoff_sets = backoff.print_as_tuple
+                weekly.extend([backoff_sets])
+        return weekly
 
+    @property
+    def output_table_with_padding(self) -> List[tuple]:
+        """Add emptry row for formatting"""
+        outputs = [f"{self.pretty_name}"]
+        empty_entries = [("", "")] * MESOCYCLE_LENGTH
+        weekly_sets = self.make_weekly_sets
+        weekly = itertools.zip_longest(empty_entries, weekly_sets)
+        weekly_flattened = list(itertools.chain.from_iterable(weekly))
+        outputs.extend(weekly_flattened)
+        outputs.append("")
+
+        return outputs
+
+    @property
+    def output_table(self) -> List:
+        "Creates table output for prettytable package"
+        weight_output = [self.pretty_name]
+        weight_output.extend(self.make_weekly_sets)
+
+        outputs = [f"{self.pretty_name}"]
+        outputs.extend(self.make_weekly_sets)
         # add empty row for formatting
         outputs.append("")
         return outputs
@@ -133,17 +155,15 @@ def create_program_dates(start_date: datetime.date):
     Create the weekly dates for the program output
     """
     week_dates_to_add = create_weekly_dates(start_date)
-    week_dates_to_add.insert(0, "Week Starting")
     week_dates_to_add.append("")
-
+    # print(week_dates_to_add)
     exercise_dates = []
-    for week_no, week_date in enumerate(week_dates_to_add, 1):
-        # first week contains double the dates because of top / backoff sets
-        if week_no == 1:
-            exercise_date = list(itertools.chain.from_iterable(zip(*[week_date] * 2)))
-        else:
-            exercise_date = week_date
-        exercise_dates.append(exercise_date)
+    first_week = list(itertools.chain.from_iterable(zip([week_dates_to_add] * 2)))
+    single_week = [week_dates_to_add]
+    exercise_dates = [first_week] + [single_week] * (MAX_DAILY_EXERCISES - 1)
+    exercise_dates.insert(0, "Week Starting")
+
+    exercise_dates = [item for sublist in day_col for item in sublist]
 
     return exercise_dates
 
@@ -185,7 +205,7 @@ def calculate_training_range(one_rm, reps, rpe_schema) -> List[float]:
     w1_weight = round_weights(get_one_rm_pct(reps, lowest_rpe) * one_rm, deload=True)
     w5_weight = get_one_rm_pct(reps, highest_rpe) * one_rm
 
-    week_weights = np.linspace(w1_weight, w5_weight, 5).tolist()
+    week_weights = np.linspace(w1_weight, w5_weight, MESOCYCLE_LENGTH).tolist()
 
     training_range = [round_weights(i) for i in week_weights]
 
@@ -232,6 +252,7 @@ if __name__ == "__main__":
     # intiates variables
     MICROPLATES = False
     START_DATE = datetime.now()
+    MESOCYCLE_LENGTH = 5
 
     if arguments["--user"]:
         # ask for user profile
@@ -348,18 +369,26 @@ if __name__ == "__main__":
 
     day_cols = []
     daily_exercise_count = []
-    for _, exercises in program_layout.items():
+    empty_entries = [("", "")] * MESOCYCLE_LENGTH
+    for day_no, exercises in program_layout.items():
         day_col = []
-        for exercise_name in exercises:
+        for exercise_no, exercise_name in enumerate(exercises, 1):
             planned_exercise = all_exercises.get(exercise_name)
             if planned_exercise:
                 exercise_col = planned_exercise.output_table
             else:
-                generic_exericse = Exercise(
-                    backoff_sets=[LiftWeight(0, ACCESSORY_SETS, 12)] * 5,
+                LOGGER.info(
+                    'No exercise found for "%s", adding placeholder', exercise_name
+                )
+                planned_exercise = Exercise(
+                    backoff_sets=[LiftWeight(0, ACCESSORY_SETS, 12)] * MESOCYCLE_LENGTH,
                     name=exercise_name,
                 )
-                exercise_col = generic_exericse.output_table
+                exercise_col = planned_exercise.output_table
+
+            has_top_set = planned_exercise.top_sets
+            if (exercise_no == 1) & (has_top_set == []):
+                exercise_col = planned_exercise.output_table_with_padding
             day_col.append(exercise_col)
         flatten_day_col = [item for sublist in day_col for item in sublist]
 
@@ -382,6 +411,7 @@ if __name__ == "__main__":
     empty_cols = create_empty_column_with_header("")
 
     for day, col in enumerate(day_cols, 1):
+        print(program)
         program.add_column(f"Day {day}", col)
         program.add_column("", actual_load_cols)
         program.add_column("", notes_cols)
