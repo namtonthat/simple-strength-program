@@ -108,28 +108,44 @@ class Exercise:
 
     @property
     def output_table_with_padding(self) -> List[tuple]:
-        """Add emptry row for formatting"""
-        outputs = [f"{self.pretty_name}"]
+        """
+        Add empty row for formatting
+        Returns two lists, one for sets and reps, one for weights
+        """
+        week_sets_reps = ["Prescribed Work"]
+        week_weights = [self.pretty_name]
+
         empty_entries = [("", "")] * MESOCYCLE_LENGTH
         weekly_sets = self.make_weekly_sets
-        weekly = itertools.zip_longest(empty_entries, weekly_sets)
-        weekly_flattened = list(itertools.chain.from_iterable(weekly))
-        outputs.extend(weekly_flattened)
-        outputs.append("")
+        weekly_sets = itertools.zip_longest(empty_entries, weekly_sets)
+        weekly_flattened = list(itertools.chain.from_iterable(weekly_sets))
+        week_sets_rep, week_weight = map(list, zip(*weekly_flattened))
 
-        return outputs
+        # formatting
+        week_sets_reps.extend(week_sets_rep)
+        week_sets_reps.append("")
+        week_weights.extend(week_weight)
+        week_weights.append("")
+        return week_sets_reps, week_weights
 
     @property
     def output_table(self) -> List:
-        "Creates table output for prettytable package"
-        weight_output = [self.pretty_name]
-        weight_output.extend(self.make_weekly_sets)
+        """
+        Returns two lists, one for sets and reps, one for weights
+        """
+        week_sets_reps = ["Prescribed Work"]
+        week_weights = [self.pretty_name]
 
-        outputs = [f"{self.pretty_name}"]
-        outputs.extend(self.make_weekly_sets)
-        # add empty row for formatting
-        outputs.append("")
-        return outputs
+        weekly_sets = self.make_weekly_sets
+        week_sets_rep, week_weight = map(list, zip(*weekly_sets))
+
+        # formatting
+        week_sets_reps.extend(week_sets_rep)
+        week_sets_reps.append("")
+        week_weights.extend(week_weight)
+        week_weights.append("")
+
+        return week_sets_reps, week_weights
 
 
 def create_weekly_dates(start_date: datetime.date):
@@ -159,12 +175,12 @@ def create_program_dates(start_date: datetime.date):
     exercise_dates = []
     first_week = list(itertools.chain.from_iterable(zip(*[single_week] * 2)))
     first_week.pop(-1)
-    exercise_dates = [first_week] + [["Week Starting"] + single_week] * (
+    exercise_dates = [first_week] + [["Week Beginning"] + single_week] * (
         MAX_DAILY_EXERCISES - 1
     )
 
     exercise_dates = [item for sublist in exercise_dates for item in sublist]
-    exercise_dates.insert(0, "Week Starting")
+    exercise_dates.insert(0, "Week Beginning")
 
     return exercise_dates
 
@@ -239,6 +255,7 @@ def create_empty_column_with_header(column_to_create: str) -> list:
     empty_entries = [""] * 6
     # first exercise will have double number of entries because of top and backoff sets
     first_exercise = [f"{column_to_create}"] + empty_entries * 2
+    first_exercise.pop(-1)
 
     # every subsequent exercise does not have top sets
     single_col = [f"{column_to_create}"] + empty_entries
@@ -287,6 +304,7 @@ if __name__ == "__main__":
     MICROPLATES = user_gym.get("microplates") if user_gym else False
     MIN_PLATE_WEIGHT = 1 if MICROPLATES else 2.5
     ACCESSORY_SETS = exercises.get("accessory-config").get("max-sets")
+    MAX_DAILY_EXERCISES = len(max(list(program_layout.values()), key=len))
 
     max_lifts = []
     full_program = []
@@ -368,15 +386,18 @@ if __name__ == "__main__":
         max_tm_row = lift.output_table
         user_stats.add_row(max_tm_row)
 
-    day_cols = []
-    daily_exercise_count = []
-    empty_entries = [("", "")] * MESOCYCLE_LENGTH
+    # Creating both the prescribed work and weight columns
+    weight_cols = []
+    sets_reps_cols = []
+
     for day_no, exercises in program_layout.items():
-        day_col = []
+        day_weight = []
+        day_sets_reps = []
+
         for exercise_no, exercise_name in enumerate(exercises, 1):
             planned_exercise = all_exercises.get(exercise_name)
             if planned_exercise:
-                exercise_col = planned_exercise.output_table
+                sets_reps_col, weight_col = planned_exercise.output_table
             else:
                 LOGGER.info(
                     'No exercise found for "%s", adding placeholder', exercise_name
@@ -385,35 +406,38 @@ if __name__ == "__main__":
                     backoff_sets=[LiftWeight(0, ACCESSORY_SETS, 12)] * MESOCYCLE_LENGTH,
                     name=exercise_name,
                 )
-                exercise_col = planned_exercise.output_table
+                sets_reps_col, weight_col = planned_exercise.output_table
 
             has_top_set = planned_exercise.top_sets
             if (exercise_no == 1) & (has_top_set == []):
-                exercise_col = planned_exercise.output_table_with_padding
-            day_col.append(exercise_col)
-        flatten_day_col = [item for sublist in day_col for item in sublist]
+                LOGGER.info("First exercise has no top set, adding placeholder")
+                sets_reps_col, weight_col = planned_exercise.output_table_with_padding
+            day_sets_reps.append(sets_reps_col)
+            day_weight.append(weight_col)
 
-        day_cols.append(flatten_day_col)
+        flatten_weights_col = [item for sublist in day_weight for item in sublist]
+        flatten_sets_reps_col = [item for sublist in day_sets_reps for item in sublist]
 
-    column_pad(*day_cols)
+        sets_reps_cols.append(flatten_sets_reps_col)
+        weight_cols.append(flatten_weights_col)
 
-    program = PrettyTable()
-
-    # create weekly dates
-
-    # find the maximum number of exercises for a given day
-    MAX_DAILY_EXERCISES = len(max(list(program_layout.values()), key=len))
-    program_dates = create_program_dates(START_DATE)
-    program.add_column("", program_dates)
+    column_pad(*sets_reps_cols)
+    column_pad(*weight_cols)
 
     # add actual load columns for user input
+    LOGGER.info("Creating columns")
+    program_dates = create_program_dates(START_DATE)
     actual_load_cols = create_empty_column_with_header("Actual Load")
     notes_cols = create_empty_column_with_header("Notes")
     empty_cols = create_empty_column_with_header("")
 
-    for day, col in enumerate(day_cols, 1):
-        print(program)
-        program.add_column(f"Day {day}", col)
+    program = PrettyTable()
+    program.add_column("", program_dates)
+    for day, (sets_reps_col, weight_col) in enumerate(
+        zip(sets_reps_cols, weight_cols), 1
+    ):
+        program.add_column(f"Day {day}", sets_reps_col)
+        program.add_column("", weight_col)
         program.add_column("", actual_load_cols)
         program.add_column("", notes_cols)
         program.add_column("", empty_cols)
@@ -423,7 +447,6 @@ if __name__ == "__main__":
     output_path = f"output/{user_profile}"
     program_file = f"program-{program_date}.csv"
 
-    # TODO: convert get_csv_string to HTML
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
