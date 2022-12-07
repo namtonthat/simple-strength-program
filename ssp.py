@@ -110,7 +110,7 @@ class Exercise:
         return outputs
 
 
-def create_weekly_dates(start_date):
+def create_weekly_dates(start_date: datetime.date):
     """
     Create the weekly dates for the program
     """
@@ -121,14 +121,31 @@ def create_weekly_dates(start_date):
     week_mondays = []
     for week in range(1, 6):
         week_monday = starting_monday + timedelta(days=7 * week)
-        if week == 1:
-            # duplicate dates for first exercise
-            week_monday = list(itertools.chain.from_iterable(zip(*[week_monday] * 2)))
         week_mondays.append(week_monday)
 
     # Create the week dates as str
     week_dates = [i.strftime("%d/%m/%y") for i in week_mondays]
     return week_dates
+
+
+def create_program_dates(start_date: datetime.date):
+    """
+    Create the weekly dates for the program output
+    """
+    week_dates_to_add = create_weekly_dates(start_date)
+    week_dates_to_add.insert(0, "Week Starting")
+    week_dates_to_add.append("")
+
+    exercise_dates = []
+    for week_no, week_date in enumerate(week_dates_to_add, 1):
+        # first week contains double the dates because of top / backoff sets
+        if week_no == 1:
+            exercise_date = list(itertools.chain.from_iterable(zip(*[week_date] * 2)))
+        else:
+            exercise_date = week_date
+        exercise_dates.append(exercise_date)
+
+    return exercise_dates
 
 
 def calculate_1rm(reps, rpe, weight):
@@ -196,7 +213,7 @@ def column_pad(*columns):
         c.extend([""] * (max_len - len(c)))
 
 
-def create_empty_column_with_header(column_to_create: str, column_length: int) -> list:
+def create_empty_column_with_header(column_to_create: str) -> list:
     """Create an empty column with a header for prettytable package"""
     empty_entries = [""] * 6
     # first exercise will have double number of entries because of top and backoff sets
@@ -204,7 +221,7 @@ def create_empty_column_with_header(column_to_create: str, column_length: int) -
 
     # every subsequent exercise does not have top sets
     single_col = [f"{column_to_create}"] + empty_entries
-    single_cols = first_exercise + single_col * (column_length - 1)
+    single_cols = first_exercise + single_col * (MAX_DAILY_EXERCISES - 1)
 
     return single_cols
 
@@ -214,7 +231,7 @@ if __name__ == "__main__":
 
     # intiates variables
     MICROPLATES = False
-    start_date = datetime.now()
+    START_DATE = datetime.now()
 
     if arguments["--user"]:
         # ask for user profile
@@ -353,26 +370,21 @@ if __name__ == "__main__":
     program = PrettyTable()
 
     # create weekly dates
-    week_dates = create_weekly_dates(start_date)
-    week_dates.insert(0, "Week Starting")
-    week_dates.append("")
 
     # find the maximum number of exercises for a given day
-    max_daily_exercises = len(max(list(program_layout.values()), key=len))
-    program_dates = week_dates * max_daily_exercises
+    MAX_DAILY_EXERCISES = len(max(list(program_layout.values()), key=len))
+    program_dates = create_program_dates(START_DATE)
     program.add_column("", program_dates)
 
     # add actual load columns for user input
-    actual_load_cols = create_empty_column_with_header(
-        "Actual Load", max_daily_exercises
-    )
-    notes_cols = create_empty_column_with_header("Notes", max_daily_exercises)
-    empty_cols = create_empty_column_with_header("", max_daily_exercises)
+    actual_load_cols = create_empty_column_with_header("Actual Load")
+    notes_cols = create_empty_column_with_header("Notes")
+    empty_cols = create_empty_column_with_header("")
 
     for day, col in enumerate(day_cols, 1):
         program.add_column(f"Day {day}", col)
         program.add_column("", actual_load_cols)
-        program.add_column("", empty_cols)
+        program.add_column("", notes_cols)
         program.add_column("", empty_cols)
 
     LOGGER.info("Writing to file")
