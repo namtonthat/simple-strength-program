@@ -1,4 +1,8 @@
 {
+    "accessory-config": {
+        "min-sets": 2,
+        "max-sets": 3
+    },
     "accessory-lifts": {
         "bench": {
             "paused-bench": {
@@ -123,17 +127,11 @@
             "backoff-sets": 3,
             "backoff-reps": 6
         },
-        "strength-basic": {
+        "strength-7": {
             "top-sets": 0,
             "top-reps": 0,
             "backoff-sets": 5,
             "backoff-reps": 5
-        },
-        "volume-basic": {
-            "top-sets": 0,
-            "top-reps": 0,
-            "backoff-sets": 3,
-            "backoff-reps": 6
         },
         "volume-1": {
             "top-sets": 0,

@@ -39,6 +39,7 @@ class LiftWeight:
     """A dataclass to store the weight for a lift"""
 
     weight: float
+    sets: int
     reps: int
 
 
@@ -90,13 +91,18 @@ class Exercise:
         if self.top_sets:
             for _, (top, backoff) in enumerate(self.weekly_sets, 1):
                 output = (
+                    f"{top.sets} x {top.reps}\n"
+                    + f"{backoff.sets} x {backoff.reps} | "
+                    + f"{top.weight} kg\n"
+                )
+                output = (
                     f"{top.weight} kg x {top.reps}\n"
                     + f"{backoff.weight} kg x {backoff.reps}"
                 )
                 outputs.append(output)
         else:
             for _, weight in enumerate(self.weekly_sets, 1):
-                output = f"{weight.weight} kg x {weight.reps}"
+                output = f"{weight.sets} x {weight.reps} | " + f"{weight.weight} kg"
                 outputs.append(output)
 
         # add empty row for formatting
@@ -115,6 +121,9 @@ def create_weekly_dates(start_date):
     week_mondays = []
     for week in range(1, 6):
         week_monday = starting_monday + timedelta(days=7 * week)
+        if week == 1:
+            # duplicate dates for first exercise
+            week_monday = list(itertools.chain.from_iterable(zip(*[week_monday] * 2)))
         week_mondays.append(week_monday)
 
     # Create the week dates as str
@@ -168,11 +177,13 @@ def calculate_training_range(one_rm, reps, rpe_schema) -> List[float]:
     return training_range
 
 
-def create_training_range(one_rm, reps, rpe_schema) -> List[LiftWeight]:
+def create_training_range(one_rm, sets, reps, rpe_schema) -> List[LiftWeight]:
     """Create a list of LiftWeight objects for the training range"""
     training_range = calculate_training_range(one_rm, reps, rpe_schema)
 
-    weights_lifted = list(zip(training_range, itertools.repeat(reps)))
+    weights_lifted = list(
+        zip(training_range, itertools.repeat(sets), itertools.repeat(reps))
+    )
     weights_lifted = [LiftWeight(*i) for i in weights_lifted]
 
     return weights_lifted
@@ -183,6 +194,19 @@ def column_pad(*columns):
     max_len = max([len(c) for c in columns])
     for c in columns:
         c.extend([""] * (max_len - len(c)))
+
+
+def create_empty_column_with_header(column_to_create: str, column_length: int) -> list:
+    """Create an empty column with a header for prettytable package"""
+    empty_entries = [""] * 6
+    # first exercise will have double number of entries because of top and backoff sets
+    first_exercise = [f"{column_to_create}"] + empty_entries * 2
+
+    # every subsequent exercise does not have top sets
+    single_col = [f"{column_to_create}"] + empty_entries
+    single_cols = first_exercise + single_col * (column_length - 1)
+
+    return single_cols
 
 
 if __name__ == "__main__":
@@ -223,6 +247,7 @@ if __name__ == "__main__":
     DF_RPE = pd.read_csv("source/rpe-calculator.csv").set_index("RPE")
     MICROPLATES = user_gym.get("microplates") if user_gym else False
     MIN_PLATE_WEIGHT = 1 if MICROPLATES else 2.5
+    ACCESSORY_SETS = exercises.get("accessory-config").get("max-sets")
 
     max_lifts = []
     full_program = []
@@ -247,12 +272,14 @@ if __name__ == "__main__":
         if program_type == "strength":
             top_training_range = create_training_range(
                 one_rm=lift_one_rep_max,
+                sets=exercise_volume.get("top-sets"),
                 reps=exercise_volume.get("top-reps"),
                 rpe_schema=rpes.get("top"),
             )
 
         backoff_training_range = create_training_range(
             one_rm=lift_one_rep_max,
+            sets=exercise_volume.get("backoff-sets"),
             reps=exercise_volume.get("backoff-reps"),
             rpe_schema=rpes.get("backoff"),
         )
@@ -274,7 +301,10 @@ if __name__ == "__main__":
             min_reps = stats.get("min-reps")
 
             accessory_training_range = create_training_range(
-                one_rm=accessory_one_rm, reps=min_reps, rpe_schema=accessory_rpe_schema
+                one_rm=accessory_one_rm,
+                sets=ACCESSORY_SETS,
+                reps=min_reps,
+                rpe_schema=accessory_rpe_schema,
             )
 
             accessory_lift = Exercise(
@@ -287,7 +317,6 @@ if __name__ == "__main__":
             full_program.append(accessory_lift)
 
         max_lifts.append(max_strength)
-
     # create the program
     LOGGER.info("Creating list of available exercises to output")
     all_exercises = {}
@@ -310,7 +339,7 @@ if __name__ == "__main__":
                 exercise_col = planned_exercise.output_table
             else:
                 generic_exericse = Exercise(
-                    backoff_sets=[LiftWeight(0, 12)] * 5,
+                    backoff_sets=[LiftWeight(0, ACCESSORY_SETS, 12)] * 5,
                     name=exercise_name,
                 )
                 exercise_col = generic_exericse.output_table
@@ -320,6 +349,7 @@ if __name__ == "__main__":
         day_cols.append(flatten_day_col)
 
     column_pad(*day_cols)
+
     program = PrettyTable()
 
     # create weekly dates
@@ -333,13 +363,16 @@ if __name__ == "__main__":
     program.add_column("", program_dates)
 
     # add actual load columns for user input
-    actual_load_col = ["Actual Load"] + [""] * 6
-    actual_load_cols = actual_load_col * max_daily_exercises
-    empty_cols = [""] * 7 * max_daily_exercises
+    actual_load_cols = create_empty_column_with_header(
+        "Actual Load", max_daily_exercises
+    )
+    notes_cols = create_empty_column_with_header("Notes", max_daily_exercises)
+    empty_cols = create_empty_column_with_header("", max_daily_exercises)
 
     for day, col in enumerate(day_cols, 1):
         program.add_column(f"Day {day}", col)
         program.add_column("", actual_load_cols)
+        program.add_column("", empty_cols)
         program.add_column("", empty_cols)
 
     LOGGER.info("Writing to file")
