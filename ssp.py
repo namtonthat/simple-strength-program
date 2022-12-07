@@ -388,7 +388,7 @@ if __name__ == "__main__":
         program.add_column("", empty_cols)
 
     LOGGER.info("Writing to file")
-    program_date = start_date.strftime("%Y-%m")
+    program_date = START_DATE.strftime("%Y-%m")
     output_path = f"output/{user_profile}"
     program_file = f"program-{program_date}.csv"
 
