@@ -154,16 +154,17 @@ def create_program_dates(start_date: datetime.date):
     """
     Create the weekly dates for the program output
     """
-    week_dates_to_add = create_weekly_dates(start_date)
-    week_dates_to_add.append("")
-    # print(week_dates_to_add)
+    single_week = create_weekly_dates(start_date)
+    single_week.append("")
     exercise_dates = []
-    first_week = list(itertools.chain.from_iterable(zip([week_dates_to_add] * 2)))
-    single_week = [week_dates_to_add]
-    exercise_dates = [first_week] + [single_week] * (MAX_DAILY_EXERCISES - 1)
-    exercise_dates.insert(0, "Week Starting")
+    first_week = list(itertools.chain.from_iterable(zip(*[single_week] * 2)))
+    first_week.pop(-1)
+    exercise_dates = [first_week] + [["Week Starting"] + single_week] * (
+        MAX_DAILY_EXERCISES - 1
+    )
 
-    exercise_dates = [item for sublist in day_col for item in sublist]
+    exercise_dates = [item for sublist in exercise_dates for item in sublist]
+    exercise_dates.insert(0, "Week Starting")
 
     return exercise_dates
 
