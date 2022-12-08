@@ -1,15 +1,15 @@
 squat:
-  weight: 95
-  reps: 1
-  rpe: 10
-  program-goal: strength-1
-bench:
-  weight: 57.5
+  weight: 147.5
   reps: 1
   rpe: 9.5
+  program-goal: volume-1
+bench:
+  weight: 107.5
+  reps: 1
+  rpe: 10
   program-goal: volume-4
 deadlift:
-  weight: 132.5
+  weight: 207.5
   reps: 1
   rpe: 10
   program-goal: volume-1

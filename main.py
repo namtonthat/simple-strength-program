@@ -427,9 +427,8 @@ if __name__ == "__main__":
     # add actual load columns for user input
     LOGGER.info("Creating columns")
     program_dates = create_program_dates(START_DATE)
-    actual_load_cols = create_empty_column_with_header("Actual Load")
-    notes_cols = create_empty_column_with_header("Notes")
-    empty_cols = create_empty_column_with_header("")
+
+    user_input_columns = ["Actual Load", "RPE", "Notes", ""]
 
     program = PrettyTable()
     program.add_column("", program_dates)
@@ -438,9 +437,11 @@ if __name__ == "__main__":
     ):
         program.add_column(f"Day {day}", sets_reps_col)
         program.add_column("", weight_col)
-        program.add_column("", actual_load_cols)
-        program.add_column("", notes_cols)
-        program.add_column("", empty_cols)
+
+        # iterate and add empty columns with headers
+        for user_input_column_name in user_input_columns:
+            user_input_col = create_empty_column_with_header(user_input_column_name)
+            program.add_column("", user_input_col)
 
     LOGGER.info("Writing to file")
     program_date = START_DATE.strftime("%Y-%m")
