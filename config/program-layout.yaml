@@ -1,18 +1,22 @@
 # requires each day to have the same number of exercises
 day-1:
-- squat
-- paused-bench
-- romanian-deadlift
-- bulgarian-split-squat
-- superman-ab-crunch
+  - squat
+  - romanian-deadlift
+  - bulgarian-split-squat
+  - decline-leg-raises
+  - lunges
+  - leg-extension
 day-2:
-- bench
-- paused-deadlift
-- face-pulls
-- tricep-pushdowns
+  - bench
+  - lat-pulldowns
+  - assisted-chest-dips
+  - push-ups
+  - cable-rows
+  - chest-fly
 day-3:
-- deadlift
-- safety-squat-bar
-- chest-fly
-- incline-bench-press
-- bicep-curls
+  - deadlift
+  - hip-thrust
+  - kneeling-diamond-push-ups
+  - side-raises-front-raises
+  - tricep-extensions
+  - plank
