@@ -55,11 +55,6 @@ poetry install
   - **Deadlift**
     - If you typical deadlift is sumo stance, then your accessory will be conventional and vice versa.
 
-  - **Overhead Press**
-    - Typically doesn't require any accessory - high rep (20+) lateral raises are effective
-
--  **Assisted Compound**: examples include Meadow rows, lat pulldown, chin ups, pull ups and pendulum squats etc...
-
 ### 👟 Volume
 - Refers to only doing straight sets with reps within the 6 + rep range.
 

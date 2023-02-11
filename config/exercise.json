@@ -1,4 +1,8 @@
 {
+    "accessory-config": {
+        "min-sets": 2,
+        "max-sets": 3
+    },
     "accessory-lifts": {
         "bench": {
             "paused-bench": {
@@ -15,6 +19,16 @@
                 "max-onerm-pct": 0.8,
                 "min-reps": 4,
                 "max-reps": 12
+            },
+            "incline-dumbbell-press": {
+                "max-onerm-pct": 0.8,
+                "min-reps": 8,
+                "max-reps": 15
+            },
+            "close-grip-bench-press": {
+                "max-onerm-pct": 0.7,
+                "min-reps": 5,
+                "max-reps": 8
             },
             "delt-raises": {
                 "max-onerm-pct": 0.2,
@@ -113,17 +127,11 @@
             "backoff-sets": 3,
             "backoff-reps": 6
         },
-        "strength-basic": {
+        "strength-7": {
             "top-sets": 0,
             "top-reps": 0,
             "backoff-sets": 5,
             "backoff-reps": 5
-        },
-        "volume-basic": {
-            "top-sets": 0,
-            "top-reps": 0,
-            "backoff-sets": 3,
-            "backoff-reps": 6
         },
         "volume-1": {
             "top-sets": 0,
