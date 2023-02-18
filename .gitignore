@@ -1,3 +1,5 @@
 output
 !output/default/*.*
-*.ipynb
+
+# ignore all cache files
+__pycache__/
