@@ -274,10 +274,6 @@ if __name__ == "__main__":
     else:
         user_profile = "default"
 
-    # available users
-    home_directory = os.
-    available_users = os.listdir("/profiles")
-
     LOGGER.info("Reading source data and configs")
     defined_rpes = yaml.load(open("source/rpe.yaml", "r"), Loader=yaml.FullLoader)
     exercises = yaml.load(open("config/exercise.json", "r"), Loader=yaml.FullLoader)
