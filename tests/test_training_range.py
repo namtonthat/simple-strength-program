@@ -16,5 +16,4 @@ def training_data():
 
 
 def test_calculate_training_range(training_data):
-
     assert calculate_training_range(**training_data) == [35, 37.5, 40, 42.5, 45]

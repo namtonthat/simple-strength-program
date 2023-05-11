@@ -152,9 +152,7 @@ def create_weekly_dates(start_date: datetime.date):
     """
     Create the weekly dates for the program
     """
-    starting_monday = datetime.date(
-        start_date + timedelta(days=7 - start_date.weekday())
-    )
+    starting_monday = datetime.date(start_date + timedelta(days=7 - start_date.weekday()))
 
     week_mondays = []
     for week in range(1, 6):
@@ -175,9 +173,7 @@ def create_program_dates(start_date: datetime.date):
     exercise_dates = []
     first_week = list(itertools.chain.from_iterable(zip(*[single_week] * 2)))
     first_week.pop(-1)
-    exercise_dates = [first_week] + [["Week Beginning"] + single_week] * (
-        MAX_DAILY_EXERCISES - 1
-    )
+    exercise_dates = [first_week] + [["Week Beginning"] + single_week] * (MAX_DAILY_EXERCISES - 1)
 
     exercise_dates = [item for sublist in exercise_dates for item in sublist]
     exercise_dates.insert(0, "Week Beginning")
@@ -235,9 +231,7 @@ def create_training_range(one_rm, sets, reps, rpe_schema) -> List[LiftWeight]:
     """Create a list of LiftWeight objects for the training range"""
     training_range = calculate_training_range(one_rm, reps, rpe_schema)
 
-    weights_lifted = list(
-        zip(training_range, itertools.repeat(sets), itertools.repeat(reps))
-    )
+    weights_lifted = list(zip(training_range, itertools.repeat(sets), itertools.repeat(reps)))
     weights_lifted = [LiftWeight(*i) for i in weights_lifted]
 
     return weights_lifted
@@ -280,23 +274,22 @@ if __name__ == "__main__":
     else:
         user_profile = "default"
 
+    # available users
+    home_directory = os.
+    available_users = os.listdir("/profiles")
+
     LOGGER.info("Reading source data and configs")
     defined_rpes = yaml.load(open("source/rpe.yaml", "r"), Loader=yaml.FullLoader)
     exercises = yaml.load(open("config/exercise.json", "r"), Loader=yaml.FullLoader)
-    program_layout = yaml.load(
-        open("config/program-layout.yaml", "r"), Loader=yaml.FullLoader
-    )
+    program_layout = yaml.load(open("config/program-layout.yaml", "r"), Loader=yaml.FullLoader)
     accessory_rpe_schema = defined_rpes.get("accessory").get("backoff")
 
     LOGGER.info("Reading user inputs")
-    user_lifts = yaml.load(
-        open(f"profiles/{user_profile}/lifts.yaml", "r"), Loader=yaml.FullLoader
-    )
+    user_lifts = yaml.load(open(f"profiles/{user_profile}/lifts.yaml", "r"), Loader=yaml.FullLoader)
     try:
-        user_gym = yaml.load(
-            open(f"profiles/{user_profile}/gym.yaml", "r"), Loader=yaml.FullLoader
-        )
+        user_gym = yaml.load(open(f"profiles/{user_profile}/gym.yaml", "r"), Loader=yaml.FullLoader)
     except FileNotFoundError:
+        logging.error("user not found; either alter the default profile or create a new one")
         user_gym = False
 
     # Global variables
@@ -352,9 +345,7 @@ if __name__ == "__main__":
 
         accessories = exercises.get("accessory-lifts").get(f"{compound_lift_name}")
         for accessory, stats in accessories.items():
-            accessory_one_rm = round_weights(
-                lift_one_rep_max * stats.get("max-onerm-pct")
-            )
+            accessory_one_rm = round_weights(lift_one_rep_max * stats.get("max-onerm-pct"))
             min_reps = stats.get("min-reps")
 
             accessory_training_range = create_training_range(
@@ -399,9 +390,7 @@ if __name__ == "__main__":
             if planned_exercise:
                 sets_reps_col, weight_col = planned_exercise.output_table
             else:
-                LOGGER.info(
-                    'No exercise found for "%s", adding placeholder', exercise_name
-                )
+                LOGGER.info('No exercise found for "%s", adding placeholder', exercise_name)
                 planned_exercise = Exercise(
                     backoff_sets=[LiftWeight(0, ACCESSORY_SETS, 12)] * MESOCYCLE_LENGTH,
                     name=exercise_name,
@@ -432,9 +421,7 @@ if __name__ == "__main__":
 
     program = PrettyTable()
     program.add_column("", program_dates)
-    for day, (sets_reps_col, weight_col) in enumerate(
-        zip(sets_reps_cols, weight_cols), 1
-    ):
+    for day, (sets_reps_col, weight_col) in enumerate(zip(sets_reps_cols, weight_cols), 1):
         program.add_column(f"Day {day}", sets_reps_col)
         program.add_column("", weight_col)
 
